@@ -10,6 +10,7 @@ interface Lesson {
   video_url: string
   content: string
   subject_id: number
+  views: number
 }
 
 export default function LessonDetail() {
@@ -20,6 +21,7 @@ export default function LessonDetail() {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [hasRecordedView, setHasRecordedView] = useState(false)
   
   // نظام التقييم
   const [userRating, setUserRating] = useState<number | null>(null)
@@ -33,6 +35,27 @@ export default function LessonDetail() {
     fetchExercisesCount()
     fetchRatings()
   }, [id])
+
+  // تسجيل مشاهدة عند تحميل الصفحة
+  useEffect(() => {
+    if (lesson && !hasRecordedView) {
+      recordView()
+    }
+  }, [lesson])
+
+  async function recordView() {
+    if (!lesson || hasRecordedView) return
+    
+    const { error } = await supabase
+      .from('lessons')
+      .update({ views: (lesson.views || 0) + 1 })
+      .eq('id', lesson.id)
+    
+    if (!error) {
+      setHasRecordedView(true)
+      setLesson({ ...lesson, views: (lesson.views || 0) + 1 })
+    }
+  }
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -69,7 +92,6 @@ export default function LessonDetail() {
   }
 
   async function fetchRatings() {
-    // جلب متوسط التقييم
     const { data } = await supabase
       .from('lesson_ratings')
       .select('rating')
@@ -114,7 +136,7 @@ export default function LessonDetail() {
 
     if (!error) {
       setUserRating(rating)
-      fetchRatings() // تحديث متوسط التقييم
+      fetchRatings()
       alert('شكراً لتقييمك! ⭐')
     }
   }
@@ -200,7 +222,6 @@ export default function LessonDetail() {
     )
   }
 
-  // عرض النجوم
   const renderStars = (rating: number, interactive = false) => {
     const stars = []
     for (let i = 1; i <= 5; i++) {
@@ -224,6 +245,14 @@ export default function LessonDetail() {
       )
     }
     return stars
+  }
+
+  // تنسيق عدد المشاهدات
+  const formatViews = (views: number) => {
+    if (views >= 1000) {
+      return (views / 1000).toFixed(1) + 'K'
+    }
+    return views.toString()
   }
 
   return (
@@ -280,7 +309,7 @@ export default function LessonDetail() {
         {lesson.title_ar}
       </h1>
       
-      {/* قسم التقييم */}
+      {/* قسم الإحصائيات (المشاهدات والتقييم) */}
       <div style={{
         background: '#f9fafb',
         padding: '20px',
@@ -292,21 +321,34 @@ export default function LessonDetail() {
         flexWrap: 'wrap',
         gap: '15px'
       }}>
+        {/* المشاهدات */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '24px' }}>👁️</span>
+          <div>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
+              {formatViews(lesson.views || 0)}
+            </div>
+            <div style={{ fontSize: '12px', color: '#666' }}>مشاهدة</div>
+          </div>
+        </div>
+        
+        {/* التقييم */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <div>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#333' }}>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
               {averageRating.toFixed(1)}
             </div>
             <div>{renderStars(averageRating)}</div>
           </div>
-          <div style={{ color: '#666', fontSize: '14px' }}>
-            بناءً على {ratingCount} تقييم
+          <div style={{ color: '#666', fontSize: '12px' }}>
+            {ratingCount} تقييم
           </div>
         </div>
         
+        {/* تقييم المستخدم */}
         {user && (
           <div style={{ textAlign: 'left' }}>
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+            <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
               {userRating ? 'تقييمك:' : 'قيم هذا الدرس:'}
             </div>
             <div>{renderStars(userRating || 0, true)}</div>
