@@ -18,6 +18,7 @@ import Exercises from './pages/Exercises'
 import Exams from './pages/Exams'
 import EnglishTips from './pages/EnglishTips'
 import Leaderboard from './pages/Leaderboard'
+import AITutor from './pages/AITutor'
 import './dark-mode.css'
 
 function Navbar() {
@@ -44,9 +45,9 @@ function Navbar() {
   const navStyle = {
     background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
     backdropFilter: 'blur(10px)',
-    padding: '15px 30px',
+    padding: '15px 20px',
     display: 'flex',
-    gap: '15px',
+    gap: '12px',
     justifyContent: 'center',
     position: 'sticky' as const,
     top: 0,
@@ -58,8 +59,8 @@ function Navbar() {
   const linkStyle = (path: string) => ({
     color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
     textDecoration: 'none',
-    fontSize: '14px',
-    padding: '5px 10px',
+    fontSize: '13px',
+    padding: '5px 8px',
     transition: 'color 0.3s'
   })
   
@@ -69,6 +70,7 @@ function Navbar() {
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏆 التصنيف</Link>
+      <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
       {user ? (
         <>
@@ -104,6 +106,7 @@ function AppContent() {
         <Route path="/exams" element={<Exams />} />
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/ai-tutor" element={<AITutor />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
