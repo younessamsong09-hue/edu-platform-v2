@@ -20,11 +20,18 @@ export default function LessonDetail() {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [user, setUser] = useState<any>(null)
+  
+  // نظام التقييم
+  const [userRating, setUserRating] = useState<number | null>(null)
+  const [averageRating, setAverageRating] = useState(0)
+  const [ratingCount, setRatingCount] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
 
   useEffect(() => {
     checkUser()
     fetchLesson()
     fetchExercisesCount()
+    fetchRatings()
   }, [id])
 
   async function checkUser() {
@@ -33,6 +40,7 @@ export default function LessonDetail() {
     if (user) {
       checkFavorite()
       checkProgress()
+      fetchUserRating()
     }
   }
 
@@ -57,6 +65,57 @@ export default function LessonDetail() {
 
     if (!error && count) {
       setExercisesCount(count)
+    }
+  }
+
+  async function fetchRatings() {
+    // جلب متوسط التقييم
+    const { data } = await supabase
+      .from('lesson_ratings')
+      .select('rating')
+      .eq('lesson_id', id)
+    
+    if (data && data.length > 0) {
+      const sum = data.reduce((acc, curr) => acc + curr.rating, 0)
+      setAverageRating(sum / data.length)
+      setRatingCount(data.length)
+    }
+  }
+
+  async function fetchUserRating() {
+    if (!user) return
+    
+    const { data } = await supabase
+      .from('lesson_ratings')
+      .select('rating')
+      .eq('user_id', user.id)
+      .eq('lesson_id', id)
+      .single()
+    
+    if (data) {
+      setUserRating(data.rating)
+    }
+  }
+
+  async function submitRating(rating: number) {
+    if (!user) {
+      alert('يرجى تسجيل الدخول أولاً')
+      return
+    }
+
+    const { error } = await supabase
+      .from('lesson_ratings')
+      .upsert({
+        user_id: user.id,
+        lesson_id: id,
+        rating: rating,
+        updated_at: new Date().toISOString()
+      })
+
+    if (!error) {
+      setUserRating(rating)
+      fetchRatings() // تحديث متوسط التقييم
+      alert('شكراً لتقييمك! ⭐')
     }
   }
 
@@ -141,6 +200,32 @@ export default function LessonDetail() {
     )
   }
 
+  // عرض النجوم
+  const renderStars = (rating: number, interactive = false) => {
+    const stars = []
+    for (let i = 1; i <= 5; i++) {
+      const isFilled = interactive ? i <= (hoverRating || userRating || 0) : i <= rating
+      stars.push(
+        <span
+          key={i}
+          onClick={() => interactive && submitRating(i)}
+          onMouseEnter={() => interactive && setHoverRating(i)}
+          onMouseLeave={() => interactive && setHoverRating(0)}
+          style={{
+            fontSize: '28px',
+            cursor: interactive ? 'pointer' : 'default',
+            color: isFilled ? '#fbbf24' : '#e5e7eb',
+            transition: 'transform 0.2s',
+            display: 'inline-block'
+          }}
+        >
+          ★
+        </span>
+      )
+    }
+    return stars
+  }
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
       <Link to="/courses" style={{ color: '#667eea', textDecoration: 'none' }}>
@@ -194,6 +279,40 @@ export default function LessonDetail() {
       <h1 style={{ fontSize: '32px', margin: '20px 0', color: '#333' }}>
         {lesson.title_ar}
       </h1>
+      
+      {/* قسم التقييم */}
+      <div style={{
+        background: '#f9fafb',
+        padding: '20px',
+        borderRadius: '15px',
+        marginBottom: '30px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '15px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#333' }}>
+              {averageRating.toFixed(1)}
+            </div>
+            <div>{renderStars(averageRating)}</div>
+          </div>
+          <div style={{ color: '#666', fontSize: '14px' }}>
+            بناءً على {ratingCount} تقييم
+          </div>
+        </div>
+        
+        {user && (
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+              {userRating ? 'تقييمك:' : 'قيم هذا الدرس:'}
+            </div>
+            <div>{renderStars(userRating || 0, true)}</div>
+          </div>
+        )}
+      </div>
       
       <p style={{ color: '#666', fontSize: '18px', marginBottom: '30px' }}>
         {lesson.description}
