@@ -17,11 +17,24 @@ export default function LessonDetail() {
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [loading, setLoading] = useState(true)
   const [exercisesCount, setExercisesCount] = useState(0)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
+    checkUser()
     fetchLesson()
     fetchExercisesCount()
   }, [id])
+
+  async function checkUser() {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+    if (user) {
+      checkFavorite()
+      checkProgress()
+    }
+  }
 
   async function fetchLesson() {
     const { data, error } = await supabase
@@ -47,6 +60,70 @@ export default function LessonDetail() {
     }
   }
 
+  async function checkFavorite() {
+    const { data } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('lesson_id', id)
+      .single()
+    
+    setIsFavorite(!!data)
+  }
+
+  async function checkProgress() {
+    const { data } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('lesson_id', id)
+      .single()
+    
+    setIsCompleted(data?.is_completed || false)
+  }
+
+  async function toggleFavorite() {
+    if (!user) {
+      alert('يرجى تسجيل الدخول أولاً')
+      return
+    }
+
+    if (isFavorite) {
+      await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('lesson_id', id)
+      setIsFavorite(false)
+    } else {
+      await supabase
+        .from('favorites')
+        .insert({ user_id: user.id, lesson_id: id })
+      setIsFavorite(true)
+    }
+  }
+
+  async function markComplete() {
+    if (!user) {
+      alert('يرجى تسجيل الدخول أولاً')
+      return
+    }
+
+    const { error } = await supabase
+      .from('user_progress')
+      .upsert({
+        user_id: user.id,
+        lesson_id: id,
+        is_completed: true,
+        completed_at: new Date().toISOString()
+      })
+
+    if (!error) {
+      setIsCompleted(true)
+      alert('✅ تم إكمال الدرس بنجاح!')
+    }
+  }
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '100px' }}>
@@ -69,6 +146,50 @@ export default function LessonDetail() {
       <Link to="/courses" style={{ color: '#667eea', textDecoration: 'none' }}>
         ← العودة إلى الدروس
       </Link>
+      
+      {/* أزرار المفضلة والإكمال */}
+      <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '10px' }}>
+        <button
+          onClick={toggleFavorite}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '30px',
+            cursor: 'pointer',
+            color: isFavorite ? '#eab308' : '#ccc'
+          }}
+        >
+          {isFavorite ? '⭐' : '☆'}
+        </button>
+        
+        {!isCompleted && (
+          <button
+            onClick={markComplete}
+            style={{
+              background: '#10b981',
+              color: 'white',
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            ✅ إكمال الدرس
+          </button>
+        )}
+        {isCompleted && (
+          <span style={{
+            background: '#d4edda',
+            color: '#155724',
+            padding: '8px 20px',
+            borderRadius: '20px',
+            fontSize: '14px'
+          }}>
+            ✅ تم الإكمال
+          </span>
+        )}
+      </div>
       
       <h1 style={{ fontSize: '32px', margin: '20px 0', color: '#333' }}>
         {lesson.title_ar}
@@ -101,7 +222,6 @@ export default function LessonDetail() {
         </div>
       )}
       
-      {/* زر حل التمارين */}
       <Link to={`/exercises/${lesson.id}`}>
         <button style={{
           width: '100%',
@@ -118,19 +238,6 @@ export default function LessonDetail() {
           📝 حل التمارين {exercisesCount > 0 ? `(${exercisesCount} تمرين)` : ''}
         </button>
       </Link>
-      
-      {lesson.content && (
-        <div style={{
-          background: 'white',
-          padding: '30px',
-          borderRadius: '12px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-          marginTop: '30px',
-          lineHeight: '1.8'
-        }}>
-          <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-        </div>
-      )}
     </div>
   )
 }
