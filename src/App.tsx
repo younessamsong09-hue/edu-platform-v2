@@ -14,6 +14,7 @@ import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Exercises from './pages/Exercises'
 import Exams from './pages/Exams'
+import EnglishTips from './pages/EnglishTips'
 import './dark-mode.css'
 
 function Navbar() {
@@ -64,6 +65,7 @@ function Navbar() {
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
+      <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح إنجليزية</Link>
       {user ? (
         <>
           <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
@@ -94,6 +96,7 @@ function AppContent() {
         <Route path="/courses/:id" element={<LessonDetail />} />
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/exams" element={<Exams />} />
+        <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
