@@ -17,30 +17,24 @@ export default function HomePage() {
 
   async function fetchStats() {
     try {
-      // جلب عدد المواد
       const { count: subjectsCount } = await supabase
         .from('subjects')
         .select('*', { count: 'exact', head: true })
       
-      // جلب عدد الدروس المنشورة
       const { count: lessonsCount } = await supabase
         .from('lessons')
         .select('*', { count: 'exact', head: true })
         .eq('is_published', true)
       
-      // جلب عدد الطلاب المسجلين (من جدول users)
       const { count: studentsCount } = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true })
-      
-      // عدد الأساتذة (افتراضي مؤقت)
-      const teachersCount = 12
       
       setStats({
         subjects: subjectsCount || 8,
         lessons: lessonsCount || 0,
         students: studentsCount || 0,
-        teachers: teachersCount
+        teachers: 12
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
@@ -100,25 +94,26 @@ export default function HomePage() {
               </button>
             </Link>
             
-            <button style={{
-              background: 'transparent',
-              color: 'white',
-              padding: '15px 40px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              border: '2px solid white',
-              borderRadius: '50px',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-            onClick={() => alert('قريباً: صفحة التسجيل')}>
-              📝 تسجيل جديد
-            </button>
+            <Link to="/login">
+              <button style={{
+                background: 'transparent',
+                color: 'white',
+                padding: '15px 40px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                border: '2px solid white',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                transition: 'all 0.3s'
+              }}>
+                📝 تسجيل جديد
+              </button>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Stats Section - بيانات حقيقية */}
+      {/* Stats Section */}
       <div style={{
         background: 'white',
         borderRadius: '30px',
@@ -170,44 +165,53 @@ export default function HomePage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '30px'
         }}>
-          <div style={{
-            background: 'white',
-            padding: '40px 30px',
-            borderRadius: '20px',
-            textAlign: 'center',
-            transition: 'transform 0.3s',
-            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
-          }}>
-            <div style={{ fontSize: '60px', marginBottom: '20px' }}>📹</div>
-            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>دروس فيديو</h3>
-            <p style={{ color: '#666', lineHeight: '1.6' }}>دروس عالية الجودة مع أفضل الأساتذة، يمكن مشاهدتها في أي وقت</p>
-          </div>
+          <Link to="/courses" style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: 'white',
+              padding: '40px 30px',
+              borderRadius: '20px',
+              textAlign: 'center',
+              transition: 'transform 0.3s',
+              boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+              cursor: 'pointer'
+            }}>
+              <div style={{ fontSize: '60px', marginBottom: '20px' }}>📹</div>
+              <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>دروس فيديو</h3>
+              <p style={{ color: '#666', lineHeight: '1.6' }}>دروس عالية الجودة مع أفضل الأساتذة، يمكن مشاهدتها في أي وقت</p>
+            </div>
+          </Link>
           
-          <div style={{
-            background: 'white',
-            padding: '40px 30px',
-            borderRadius: '20px',
-            textAlign: 'center',
-            transition: 'transform 0.3s',
-            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
-          }}>
-            <div style={{ fontSize: '60px', marginBottom: '20px' }}>📝</div>
-            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>تمارين تفاعلية</h3>
-            <p style={{ color: '#666', lineHeight: '1.6' }}>تمارين مع تصحيح فوري لقياس مستواك وتحديد نقاط الضعف</p>
-          </div>
+          <Link to="/courses" style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: 'white',
+              padding: '40px 30px',
+              borderRadius: '20px',
+              textAlign: 'center',
+              transition: 'transform 0.3s',
+              boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+              cursor: 'pointer'
+            }}>
+              <div style={{ fontSize: '60px', marginBottom: '20px' }}>📝</div>
+              <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>تمارين تفاعلية</h3>
+              <p style={{ color: '#666', lineHeight: '1.6' }}>تمارين مع تصحيح فوري لقياس مستواك وتحديد نقاط الضعف</p>
+            </div>
+          </Link>
           
-          <div style={{
-            background: 'white',
-            padding: '40px 30px',
-            borderRadius: '20px',
-            textAlign: 'center',
-            transition: 'transform 0.3s',
-            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
-          }}>
-            <div style={{ fontSize: '60px', marginBottom: '20px' }}>🎯</div>
-            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>امتحانات وطنية</h3>
-            <p style={{ color: '#666', lineHeight: '1.6' }}>جميع الامتحانات الوطنية مع الحلول المفصلة والنصائح</p>
-          </div>
+          <Link to="/exams" style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: 'white',
+              padding: '40px 30px',
+              borderRadius: '20px',
+              textAlign: 'center',
+              transition: 'transform 0.3s',
+              boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+              cursor: 'pointer'
+            }}>
+              <div style={{ fontSize: '60px', marginBottom: '20px' }}>🎯</div>
+              <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>امتحانات وطنية</h3>
+              <p style={{ color: '#666', lineHeight: '1.6' }}>جميع الامتحانات الوطنية مع الحلول المفصلة والنصائح</p>
+            </div>
+          </Link>
         </div>
       </div>
 
