@@ -2,9 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
-// استدعاء API الذكاء الاصطناعي (سنستخدم محاكاة أولاً)
-// يمكن لاحقاً استبدالها بـ OpenAI API أو نموذج محلي
-
 interface Message {
   id: string
   text: string
@@ -12,75 +9,176 @@ interface Message {
   timestamp: Date
 }
 
+interface Lesson {
+  id: number
+  title_ar: string
+  description: string
+  content: string
+  subject_id: number
+}
+
 export default function AITutor() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'مرحباً بك في مدرس AI! أنا هنا لمساعدتك في فهم دروسك. اسألني أي سؤال في الرياضيات، الفيزياء، العربية، أو أي مادة أخرى. أتحدث الدارجة المغربية والعربية والفرنسية. كيف يمكنني مساعدتك اليوم؟',
-      sender: 'ai',
-      timestamp: new Date()
-    }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [lessons, setLessons] = useState<Lesson[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     checkUser()
+    fetchLessons()
   }, [])
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
     setUser(user)
+    if (user) {
+      loadConversation()
+    } else {
+      // رسالة ترحيب للمستخدم غير المسجل
+      setMessages([{
+        id: '1',
+        text: 'مرحباً بك في مدرس AI! 🎓\n\nأنا هنا لمساعدتك في فهم دروسك. يمكنك سؤالي عن:\n\n📐 الرياضيات - معادلات، جبر، هندسة\n⚛️ الفيزياء - حركة، قوانين نيوتن، كهرباء\n📖 اللغة العربية - نحو، صرف، بلاغة\n🇬🇧 اللغة الإنجليزية - قواعد، محادثة\n🇫🇷 اللغة الفرنسية - تحيات، قواعد\n📝 نصائح للامتحانات\n\n⚠️ ملاحظة: سجل دخولك لحفظ محادثاتك!',
+        sender: 'ai',
+        timestamp: new Date()
+      }])
+    }
+  }
+
+  async function fetchLessons() {
+    const { data } = await supabase
+      .from('lessons')
+      .select('id, title_ar, description, content, subject_id')
+      .eq('is_published', true)
+      .limit(50)
+    
+    if (data) setLessons(data)
+  }
+
+  async function loadConversation() {
+    const { data } = await supabase
+      .from('conversations')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (data) {
+      setConversationId(data.id)
+      setMessages(data.messages)
+    } else {
+      // بدء محادثة جديدة
+      setMessages([{
+        id: Date.now().toString(),
+        text: `مرحباً ${user.email?.split('@')[0]}! 👋\n\nأنا مدرس AI الذكي. كيف يمكنني مساعدتك اليوم؟\n\nيمكنك سؤالي عن:\n📐 الرياضيات\n⚛️ الفيزياء\n📖 اللغة العربية\n🇬🇧 اللغة الإنجليزية\n🇫🇷 اللغة الفرنسية\n📝 نصائح للامتحانات`,
+        sender: 'ai',
+        timestamp: new Date()
+      }])
+    }
+  }
+
+  async function saveConversation(messagesList: Message[]) {
+    if (!user) return
+
+    const { error } = await supabase
+      .from('conversations')
+      .upsert({
+        id: conversationId,
+        user_id: user.id,
+        messages: messagesList,
+        updated_at: new Date().toISOString()
+      })
+
+    if (!error && !conversationId) {
+      const { data } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single()
+      
+      if (data) setConversationId(data.id)
+    }
   }
 
   useEffect(() => {
     scrollToBottom()
+    if (messages.length > 0 && user) {
+      saveConversation(messages)
+    }
   }, [messages])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // دالة لمحاكاة الرد الذكي (يمكن استبدالها بـ API حقيقي)
-  const getAIResponse = async (question: string): Promise<string> => {
-    // تحويل السؤال إلى أحرف صغيرة لتسهيل المعالجة
+  // البحث في الدروس عن إجابة
+  function searchLessons(question: string): Lesson | null {
     const q = question.toLowerCase()
     
-    // ردود مخصصة حسب نوع السؤال
+    // البحث في عناوين الدروس
+    for (const lesson of lessons) {
+      if (lesson.title_ar.includes(q) || lesson.description?.includes(q)) {
+        return lesson
+      }
+    }
+    
+    // البحث في محتوى الدروس
+    for (const lesson of lessons) {
+      if (lesson.content?.toLowerCase().includes(q)) {
+        return lesson
+      }
+    }
+    
+    return null
+  }
+
+  const getAIResponse = async (question: string): Promise<string> => {
+    const q = question.toLowerCase()
+    
+    // البحث أولاً في الدروس
+    const foundLesson = searchLessons(question)
+    
+    if (foundLesson) {
+      return `📚 **وجدت درساً متعلقاً بسؤالك:**\n\n**${foundLesson.title_ar}**\n${foundLesson.description || ''}\n\n${foundLesson.content?.substring(0, 500) || ''}\n\nهل تريد معرفة المزيد عن هذا الموضوع؟`
+    }
+    
+    // ردود حسب المادة
     if (q.includes('رياضيات') || q.includes('math') || q.includes('جبر') || q.includes('معادلة')) {
-      return `📐 **الرياضيات**: ${question}\n\nسأشرح لك بطريقة مبسطة:\n\n1. أولاً، دعنا نفهم المطلوب في السؤال.\n2. نستخدم القاعدة المناسبة لحل المسألة.\n3. نطبق الخطوات بالترتيب.\n\nمثال: لحل معادلة من الدرجة الأولى مثل 2س + 5 = 15\nنطرح 5 من الطرفين: 2س = 10\nنقسم على 2: س = 5\n\nهل تريد مني شرح قاعدة معينة؟`
+      return `📐 **الرياضيات**: ${question}\n\nسأشرح لك بطريقة مبسطة:\n\n**المعادلات الخطية (Linear Equations):**\n\nمثال: حل المعادلة 2س + 5 = 15\n\nالخطوة 1: ننقل الأعداد الثابتة للطرف الآخر\n2س = 15 - 5\n2س = 10\n\nالخطوة 2: نقسم الطرفين على معامل س\nس = 10 ÷ 2\nس = 5\n\n✅ الحل: س = 5\n\n**تريد حل معادلة أخرى؟ أرسلها وسأحلها لك!**`
     }
     
     if (q.includes('فيزياء') || q.includes('physics') || q.includes('حركة') || q.includes('قوة')) {
-      return `⚛️ **الفيزياء**: ${question}\n\nالفيزياء تدرس الظواهر الطبيعية. \n\n**قوانين نيوتن للحركة:**\n- القانون الأول: الجسم الساكن يبقى ساكناً، والجسم المتحرك يبقى متحركاً بسرعة ثابتة ما لم تؤثر عليه قوة خارجية.\n- القانون الثاني: القوة = الكتلة × التسارع (F = m × a)\n- القانون الثالث: لكل فعل رد فعل مساوٍ له في المقدار ومعاكس في الاتجاه.\n\nهل تريد شرح قانون معين بالتفصيل؟`
+      return `⚛️ **الفيزياء**: ${question}\n\n**قوانين نيوتن للحركة:**\n\n**القانون الأول (قانون القصور الذاتي):**\n"الجسم الساكن يبقى ساكناً، والجسم المتحرك يبقى متحركاً بسرعة ثابتة في خط مستقيم، ما لم تؤثر عليه قوة خارجية تغير من حالته"\n\n**القانون الثاني (قانون التسارع):**\n"تسارع الجسم يتناسب طردياً مع القوة المحصلة المؤثرة عليه وعكسياً مع كتلته"\nF = m × a\n\n**القانون الثالث (الفعل ورد الفعل):**\n"لكل فعل رد فعل مساوٍ له في المقدار ومعاكس في الاتجاه"\n\nهل تريد شرحاً مفصلاً لقانون معين؟`
     }
     
     if (q.includes('عربية') || q.includes('arabic') || q.includes('نحو') || q.includes('قواعد')) {
-      return `📖 **اللغة العربية**: ${question}\n\n**أقسام الكلمة في اللغة العربية:**\n- **اسم**: يدل على معنى غير مقترن بزمن (كتاب، شجرة، محمد)\n- **فعل**: يدل على حدث مقترن بزمن (كتب، يكتب، اكتب)\n- **حرف**: ما ليس اسماً ولا فعلاً (في، على، من)\n\n**مثال:** في جملة "قرأ الطالب الكتاب"\n- قرأ: فعل ماض\n- الطالب: فاعل مرفوع (اسم)\n- الكتاب: مفعول به منصوب (اسم)\n\nهل تريد مثالاً آخر؟`
+      return `📖 **اللغة العربية**: ${question}\n\n**أقسام الكلمة:**\n\n1️⃣ **اسم**: يدل على معنى غير مقترن بزمن\nمثال: كتاب، شجرة، محمد، مكة\n\n2️⃣ **فعل**: يدل على حدث مقترن بزمن\n- الماضي: كتب، قرأ\n- المضارع: يكتب، يقرأ\n- الأمر: اكتب، اقرأ\n\n3️⃣ **حرف**: ما لا يدل على معنى في نفسه\nمثال: في، على، من، إلى، هل\n\n**مثال إعراب:**\n"قرأ الطالب الكتاب"\n- قرأ: فعل ماض مبني على الفتح\n- الطالب: فاعل مرفوع بالضمة\n- الكتاب: مفعول به منصوب بالفتحة\n\nهل تريد مثالاً آخر؟`
     }
     
     if (q.includes('انجليزي') || q.includes('english') || q.includes('grammar')) {
-      return `🇬🇧 **English**: ${question}\n\n**Present Simple Tense (المضارع البسيط):**\n- I/You/We/They + verb (play, work)\n- He/She/It + verb + s/es (plays, works)\n\n**Example:**\n- I play football every day.\n- She plays tennis on weekends.\n- Do you like coffee?\n- Does he speak Arabic?\n\nWould you like more examples?`
+      return `🇬🇧 **English**: ${question}\n\n**Present Simple vs Present Continuous:**\n\n| Present Simple | Present Continuous |\n|----------------|-------------------|\n| I work | I am working |\n| He works | He is working |\n| They work | They are working |\n\n**Usage:**\n- Present Simple: Facts, routines, habits\n- Present Continuous: Actions happening now, temporary situations\n\n**Examples:**\n- I **go** to school every day. (routine)\n- I **am going** to school now. (now)\n\nWould you like more examples?`
     }
     
     if (q.includes('فرنسي') || q.includes('french') || q.includes('francais')) {
-      return `🇫🇷 **Français**: ${question}\n\n**Les salutations (التحيات):**\n- Bonjour → صباح الخير\n- Bonsoir → مساء الخير\n- Salut → مرحباً (غير رسمي)\n- Comment ça va ? → كيف حالك؟\n- Ça va bien, merci → أنا بخير، شكراً\n- Au revoir → وداعاً\n\n**Exemple:**\nA: Bonjour ! Comment ça va ?\nB: Ça va bien, merci. Et toi ?\nA: Ça va très bien, merci.\n\nVoulez-vous apprendre plus ?`
+      return `🇫🇷 **Français**: ${question}\n\n**Les verbes être et avoir (الأفعال الأساسية):**\n\n**Être (يكون):**\n- Je suis\n- Tu es\n- Il/Elle est\n- Nous sommes\n- Vous êtes\n- Ils/Elles sont\n\n**Avoir (يملك):**\n- J'ai\n- Tu as\n- Il/Elle a\n- Nous avons\n- Vous avez\n- Ils/Elles ont\n\n**Exemple:**\nJe **suis** étudiant. (أنا طالب)\nJ'**ai** 18 ans. (عمري 18 سنة)\n\nVoulez-vous plus d'exemples?`
     }
     
-    if (q.includes('امتحان') || q.includes('بكالوريا') || q.includes('bac')) {
-      return `📝 **نصائح للامتحان الوطني:**\n\n1. **تنظيم الوقت**: قسم وقتك بين المواد\n2. **المراجعة المنتظمة**: راجع الدروس يومياً\n3. **حل التمارين**: أكثر من 5 تمارين لكل درس\n4. **النوم الكافي**: 8 ساعات قبل الامتحان\n5. **التغذية الجيدة**: تناول فطوراً صحياً\n\n**جدول مراجعة مقترح:**\n- الصباح: مواد علمية (رياضيات، فيزياء)\n- المساء: مواد أدبية (عربية، فلسفة)\n- المراجعة النهائية قبل أسبوع من الامتحان\n\nهل تريد نصائح لمادة معينة؟`
+    if (q.includes('امتحان') || q.includes('بكالوريا') || q.includes('bac') || q.includes('نصائح')) {
+      return `📝 **نصائح للامتحان الوطني:**\n\n**قبل الامتحان:**\n1. 📅 ضع جدولاً للمراجعة\n2. 📚 راجع الدروس الأساسية أولاً\n3. ✍️ حل تمارين السنوات السابقة\n4. 😴 نم 8 ساعات يومياً\n5. 🍎 تناول طعاماً صحياً\n\n**أثناء الامتحان:**\n1. 📖 اقرأ الأسئلة بعناية\n2. ⏰ قسم الوقت بين الأسئلة\n3. ✏️ ابدأ بالأسهل ثم الأصعب\n4. ✅ راجع إجاباتك قبل التسليم\n\n**جدول مراجعة مقترح:**\n- الصباح: مواد علمية\n- المساء: مواد أدبية\n- قبل النوم: مراجعة سريعة\n\nهل تريد نصائح لمادة معينة؟`
     }
     
-    // رد عام إذا لم يتعرف على الموضوع
-    return `🤖 **مدرس AI**:\n\nشكراً لسؤالك! أنا هنا لمساعدتك في:\n\n📐 **الرياضيات** - جبر، معادلات، هندسة\n⚛️ **الفيزياء** - حركة، قوانين نيوتن، كهرباء\n📖 **اللغة العربية** - نحو، صرف، بلاغة\n🇬🇧 **اللغة الإنجليزية** - قواعد، محادثة\n🇫🇷 **اللغة الفرنسية** - تحيات، قواعد\n📝 **نصائح للامتحانات**\n\nيمكنك أن تسألني:\n- "شرح المعادلات الخطية"\n- "قوانين نيوتن بالدارجة"\n- "كيف أذاكر للبكالوريا"\n- "أمثلة على المضارع البسيط"\n\nأعد صياغة سؤالك وسأجيبك بالتفصيل!`
+    // رد عام مع اقتراحات
+    return `🤖 **مدرس AI**:\n\nأنا هنا لمساعدتك! يمكنك سؤالي عن:\n\n📐 **الرياضيات**\n- "حل المعادلة 2س + 5 = 15"\n- "شرح النهايات في الرياضيات"\n\n⚛️ **الفيزياء**\n- "شرح قوانين نيوتن"\n- "ما هو التسارع؟"\n\n📖 **اللغة العربية**\n- "شرح أقسام الكلمة"\n- "ما هو المبتدأ والخبر؟"\n\n🇬🇧 **اللغة الإنجليزية**\n- "شرح المضارع البسيط"\n- "الفرق بين much و many"\n\n🇫🇷 **اللغة الفرنسية**\n- "تصريف فعل être"\n- "كيف أقول صباح الخير بالفرنسية"\n\n📝 **نصائح للامتحانات**\n- "كيف أذاكر للبكالوريا"\n- "نصائح ليلة الامتحان"\n\n**أعد صياغة سؤالك وسأجيبك بالتفصيل!**`
   }
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return
 
-    // إضافة رسالة المستخدم
     const userMessage: Message = {
       id: Date.now().toString(),
       text: inputMessage,
@@ -91,7 +189,6 @@ export default function AITutor() {
     setInputMessage('')
     setIsLoading(true)
 
-    // محاكاة تأخير الرد
     setTimeout(async () => {
       const aiResponse = await getAIResponse(inputMessage)
       
@@ -103,13 +200,33 @@ export default function AITutor() {
       }
       setMessages(prev => [...prev, aiMessage])
       setIsLoading(false)
-    }, 500)
+    }, 300)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
+    }
+  }
+
+  const clearConversation = async () => {
+    if (confirm('هل تريد مسح كل المحادثات؟')) {
+      setMessages([])
+      if (user) {
+        await supabase
+          .from('conversations')
+          .delete()
+          .eq('id', conversationId)
+        setConversationId(null)
+      }
+      // إضافة رسالة ترحيب جديدة
+      setMessages([{
+        id: Date.now().toString(),
+        text: user ? `مرحباً مجدداً! كيف يمكنني مساعدتك اليوم؟` : `مرحباً بك في مدرس AI! سجل دخولك لحفظ محادثاتك.`,
+        sender: 'ai',
+        timestamp: new Date()
+      }])
     }
   }
 
@@ -124,15 +241,32 @@ export default function AITutor() {
         color: 'white',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '10px' }}>🤖</div>
-        <h1 style={{ fontSize: '28px', marginBottom: '5px' }}>مدرس AI بالدارجة</h1>
-        <p style={{ opacity: 0.9 }}>اسألني أي سؤال في الرياضيات، الفيزياء، العربية، أو أي مادة</p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>📐 رياضيات</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>⚛️ فيزياء</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>📖 عربية</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>🇬🇧 إنجليزية</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>🇫🇷 فرنسية</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <div style={{ fontSize: '48px', marginBottom: '5px' }}>🤖</div>
+            <h1 style={{ fontSize: '24px', marginBottom: '5px' }}>مدرس AI بالدارجة</h1>
+            <p style={{ opacity: 0.9, fontSize: '14px' }}>اسألني أي سؤال في المواد الدراسية</p>
+          </div>
+          <button
+            onClick={clearConversation}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              color: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            🗑️ مسح المحادثة
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>📐 رياضيات</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>⚛️ فيزياء</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>📖 عربية</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>🇬🇧 إنجليزية</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>🇫🇷 فرنسية</span>
         </div>
       </div>
 
@@ -155,8 +289,8 @@ export default function AITutor() {
             }}
           >
             <div style={{
-              maxWidth: '80%',
-              padding: '12px 18px',
+              maxWidth: '85%',
+              padding: '12px 16px',
               borderRadius: '20px',
               background: message.sender === 'user' ? '#667eea' : 'white',
               color: message.sender === 'user' ? 'white' : '#333',
@@ -219,7 +353,7 @@ export default function AITutor() {
           onClick={sendMessage}
           disabled={isLoading || !inputMessage.trim()}
           style={{
-            padding: '12px 24px',
+            padding: '12px 20px',
             background: !inputMessage.trim() ? '#ccc' : '#667eea',
             color: 'white',
             border: 'none',
@@ -233,20 +367,36 @@ export default function AITutor() {
         </button>
       </div>
 
-      <Link to="/courses">
-        <button style={{
-          marginTop: '20px',
-          width: '100%',
-          padding: '12px',
-          background: '#f3f4f6',
-          color: '#333',
-          border: 'none',
-          borderRadius: '12px',
-          cursor: 'pointer'
-        }}>
-          ← العودة إلى الدروس
-        </button>
-      </Link>
+      <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+        <Link to="/courses" style={{ flex: 1 }}>
+          <button style={{
+            width: '100%',
+            padding: '10px',
+            background: '#f3f4f6',
+            color: '#333',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: 'pointer'
+          }}>
+            ← العودة للدروس
+          </button>
+        </Link>
+        {!user && (
+          <Link to="/login" style={{ flex: 1 }}>
+            <button style={{
+              width: '100%',
+              padding: '10px',
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer'
+            }}>
+              🔐 سجل دخولك لحفظ المحادثات
+            </button>
+          </Link>
+        )}
+      </div>
 
       <style>{`
         @keyframes blink {
