@@ -1,6 +1,54 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabaseClient'
 
 export default function HomePage() {
+  const [stats, setStats] = useState({
+    subjects: 0,
+    lessons: 0,
+    students: 0,
+    teachers: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  async function fetchStats() {
+    try {
+      // جلب عدد المواد
+      const { count: subjectsCount } = await supabase
+        .from('subjects')
+        .select('*', { count: 'exact', head: true })
+      
+      // جلب عدد الدروس المنشورة
+      const { count: lessonsCount } = await supabase
+        .from('lessons')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_published', true)
+      
+      // جلب عدد الطلاب المسجلين (من جدول users)
+      const { count: studentsCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+      
+      // عدد الأساتذة (افتراضي مؤقت)
+      const teachersCount = 12
+      
+      setStats({
+        subjects: subjectsCount || 8,
+        lessons: lessonsCount || 0,
+        students: studentsCount || 0,
+        teachers: teachersCount
+      })
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -47,14 +95,6 @@ export default function HomePage() {
                 cursor: 'pointer',
                 transition: 'transform 0.3s, box-shadow 0.3s',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px)'
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)'
               }}>
                 🚀 استكشف الدروس
               </button>
@@ -71,14 +111,6 @@ export default function HomePage() {
               cursor: 'pointer',
               transition: 'all 0.3s'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'white'
-              e.currentTarget.style.color = '#667eea'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = 'white'
-            }}
             onClick={() => alert('قريباً: صفحة التسجيل')}>
               📝 تسجيل جديد
             </button>
@@ -86,7 +118,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Stats Section */}
+      {/* Stats Section - بيانات حقيقية */}
       <div style={{
         background: 'white',
         borderRadius: '30px',
@@ -102,20 +134,28 @@ export default function HomePage() {
           textAlign: 'center'
         }}>
           <div>
-            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>8+</div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>
+              {loading ? '...' : stats.subjects}+
+            </div>
             <div style={{ color: '#666', marginTop: '10px' }}>مواد دراسية</div>
           </div>
           <div>
-            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>100+</div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>
+              {loading ? '...' : stats.lessons}+
+            </div>
             <div style={{ color: '#666', marginTop: '10px' }}>دروس تفاعلية</div>
           </div>
           <div>
-            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>5000+</div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>
+              {loading ? '...' : stats.students}+
+            </div>
             <div style={{ color: '#666', marginTop: '10px' }}>طلاب مسجلين</div>
           </div>
           <div>
-            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>24/7</div>
-            <div style={{ color: '#666', marginTop: '10px' }}>دعم مستمر</div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>
+              {loading ? '...' : stats.teachers}+
+            </div>
+            <div style={{ color: '#666', marginTop: '10px' }}>أساتذة متميزون</div>
           </div>
         </div>
       </div>
