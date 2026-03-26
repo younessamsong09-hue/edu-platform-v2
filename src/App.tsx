@@ -1,18 +1,24 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabaseClient'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
+import ThemeToggle from './components/ThemeToggle'
+import NotificationBell from './components/NotificationBell'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import LessonDetail from './pages/LessonDetail'
 import AdminPanel from './pages/AdminPanel'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminStats from './pages/AdminStats'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Exercises from './pages/Exercises'
+import './dark-mode.css'
 
 function Navbar() {
   const location = useLocation()
   const [user, setUser] = useState<any>(null)
+  const { theme } = useTheme()
   
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -30,75 +36,51 @@ function Navbar() {
   
   const isActive = (path: string) => location.pathname === path
   
+  const navStyle = {
+    background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
+    backdropFilter: 'blur(10px)',
+    padding: '15px 30px',
+    display: 'flex',
+    gap: '30px',
+    justifyContent: 'center',
+    position: 'sticky' as const,
+    top: 0,
+    zIndex: 1000,
+    flexWrap: 'wrap' as const,
+    alignItems: 'center'
+  }
+  
+  const linkStyle = (path: string) => ({
+    color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
+    textDecoration: 'none',
+    fontSize: '16px'
+  })
+  
   return (
-    <nav style={{
-      background: 'rgba(31, 41, 55, 0.95)',
-      backdropFilter: 'blur(10px)',
-      padding: '15px 30px',
-      display: 'flex',
-      gap: '30px',
-      justifyContent: 'center',
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000,
-      flexWrap: 'wrap'
-    }}>
-      <Link to="/" style={{
-        color: isActive('/') ? '#667eea' : 'white',
-        textDecoration: 'none',
-        fontSize: '16px'
-      }}>
-        🏠 الرئيسية
-      </Link>
-      <Link to="/courses" style={{
-        color: isActive('/courses') ? '#667eea' : 'white',
-        textDecoration: 'none',
-        fontSize: '16px'
-      }}>
-        📚 الدروس
-      </Link>
+    <nav style={navStyle}>
+      <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
+      <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       {user ? (
         <>
-          <Link to="/profile" style={{
-            color: isActive('/profile') ? '#667eea' : 'white',
-            textDecoration: 'none',
-            fontSize: '16px'
-          }}>
-            👤 ملفي
-          </Link>
+          <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
           {user.email === 'admin@example.com' && (
             <>
-              <Link to="/admin" style={{
-                color: isActive('/admin') ? '#667eea' : 'white',
-                textDecoration: 'none',
-                fontSize: '16px'
-              }}>
-                ⚙️ إضافة درس
-              </Link>
-              <Link to="/admin-dashboard" style={{
-                color: isActive('/admin-dashboard') ? '#667eea' : 'white',
-                textDecoration: 'none',
-                fontSize: '16px'
-              }}>
-                📊 لوحة التحكم
-              </Link>
+              <Link to="/admin" style={linkStyle('/admin')}>⚙️ إضافة درس</Link>
+              <Link to="/admin-dashboard" style={linkStyle('/admin-dashboard')}>📋 لوحة التحكم</Link>
+              <Link to="/admin-stats" style={linkStyle('/admin-stats')}>📊 الإحصائيات</Link>
             </>
           )}
         </>
       ) : (
-        <Link to="/login" style={{
-          color: isActive('/login') ? '#667eea' : 'white',
-          textDecoration: 'none',
-          fontSize: '16px'
-        }}>
-          🔐 دخول
-        </Link>
+        <Link to="/login" style={linkStyle('/login')}>🔐 دخول</Link>
       )}
+      <NotificationBell />
+      <ThemeToggle />
     </nav>
   )
 }
 
-function App() {
+function AppContent() {
   return (
     <BrowserRouter>
       <Navbar />
@@ -109,10 +91,19 @@ function App() {
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-stats" element={<AdminStats />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 
