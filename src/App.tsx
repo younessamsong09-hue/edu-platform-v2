@@ -13,6 +13,7 @@ import AdminStats from './pages/AdminStats'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Exercises from './pages/Exercises'
+import Exams from './pages/Exams'
 import './dark-mode.css'
 
 function Navbar() {
@@ -41,7 +42,7 @@ function Navbar() {
     backdropFilter: 'blur(10px)',
     padding: '15px 30px',
     display: 'flex',
-    gap: '30px',
+    gap: '20px',
     justifyContent: 'center',
     position: 'sticky' as const,
     top: 0,
@@ -53,13 +54,16 @@ function Navbar() {
   const linkStyle = (path: string) => ({
     color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
     textDecoration: 'none',
-    fontSize: '16px'
+    fontSize: '15px',
+    padding: '5px 10px',
+    transition: 'color 0.3s'
   })
   
   return (
     <nav style={navStyle}>
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
+      <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
       {user ? (
         <>
           <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
@@ -89,6 +93,7 @@ function AppContent() {
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<LessonDetail />} />
         <Route path="/exercises/:lessonId" element={<Exercises />} />
+        <Route path="/exams" element={<Exams />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
