@@ -4,66 +4,199 @@ export default function HomePage() {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      backgroundColor: '#f3f4f6', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      fontFamily: 'Arial, sans-serif',
-      direction: 'rtl',
-      padding: '20px'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      fontFamily: 'Cairo, sans-serif'
     }}>
-      {/* كرت الواجهة الرئيسي */}
-      <div style={{ 
-        backgroundColor: 'white', 
-        padding: '40px', 
-        borderRadius: '20px', 
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-        maxWidth: '500px',
-        width: '100%',
-        textAlign: 'center'
+      {/* Hero Section */}
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '80px 20px',
+        textAlign: 'center',
+        color: 'white'
       }}>
-        <div style={{ fontSize: '60px', marginBottom: '10px' }}>🎓</div>
-        <h1 style={{ color: '#1f2937', marginBottom: '10px', fontSize: '28px' }}>بوابة المعرفة المغربية</h1>
-        <p style={{ color: '#6b7280', marginBottom: '30px' }}>منصتك لتعلم المواد الدراسية بذكاء وسهولة</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <Link to="/courses" style={{ textDecoration: 'none' }}>
-            <button style={{ 
-              width: '100%', 
-              backgroundColor: '#4f46e5', 
-              color: 'white', 
-              padding: '15px', 
-              border: 'none', 
-              borderRadius: '12px', 
-              fontSize: '18px', 
+        <div style={{
+          animation: 'fadeInUp 0.8s ease-out'
+        }}>
+          <div style={{ fontSize: '80px', marginBottom: '20px' }}>🎓</div>
+          <h1 style={{ 
+            fontSize: '48px', 
+            marginBottom: '20px',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.2)'
+          }}>
+            بوابة المعرفة المغربية
+          </h1>
+          <p style={{ 
+            fontSize: '20px', 
+            opacity: 0.95,
+            marginBottom: '40px'
+          }}>
+            منصتك لتعلم المواد الدراسية بذكاء وسهولة
+          </p>
+          
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/courses">
+              <button style={{
+                background: 'white',
+                color: '#667eea',
+                padding: '15px 40px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                border: 'none',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                transition: 'transform 0.3s, box-shadow 0.3s',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px)'
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)'
+              }}>
+                🚀 استكشف الدروس
+              </button>
+            </Link>
+            
+            <button style={{
+              background: 'transparent',
+              color: 'white',
+              padding: '15px 40px',
+              fontSize: '18px',
               fontWeight: 'bold',
+              border: '2px solid white',
+              borderRadius: '50px',
               cursor: 'pointer',
-              transition: '0.3s'
-            }}>
-              🚀 تصفح الدروس
+              transition: 'all 0.3s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'white'
+              e.currentTarget.style.color = '#667eea'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'white'
+            }}
+            onClick={() => alert('قريباً: صفحة التسجيل')}>
+              📝 تسجيل جديد
             </button>
-          </Link>
-
-          <button style={{ 
-            width: '100%', 
-            backgroundColor: '#10b981', 
-            color: 'white', 
-            padding: '15px', 
-            border: 'none', 
-            borderRadius: '12px', 
-            fontSize: '18px', 
-            fontWeight: 'bold',
-            cursor: 'pointer'
-          }} onClick={() => alert('قريباً: صفحة التسجيل')}>
-            📝 تسجيل طالب جديد
-          </button>
+          </div>
         </div>
       </div>
 
-      <p style={{ marginTop: '20px', color: '#9ca3af', fontSize: '14px' }}>
-        صنع بكل فخر لطلاب مدينة تاوريرت ✨
-      </p>
+      {/* Stats Section */}
+      <div style={{
+        background: 'white',
+        borderRadius: '30px',
+        maxWidth: '1000px',
+        margin: '-50px auto 0',
+        padding: '40px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '30px',
+          textAlign: 'center'
+        }}>
+          <div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>8+</div>
+            <div style={{ color: '#666', marginTop: '10px' }}>مواد دراسية</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>100+</div>
+            <div style={{ color: '#666', marginTop: '10px' }}>دروس تفاعلية</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>5000+</div>
+            <div style={{ color: '#666', marginTop: '10px' }}>طلاب مسجلين</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '40px', fontWeight: 'bold', color: '#667eea' }}>24/7</div>
+            <div style={{ color: '#666', marginTop: '10px' }}>دعم مستمر</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div style={{ maxWidth: '1200px', margin: '80px auto', padding: '0 20px' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '36px', color: '#333', marginBottom: '50px' }}>
+          مميزات المنصة
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '30px'
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '40px 30px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            transition: 'transform 0.3s',
+            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>📹</div>
+            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>دروس فيديو</h3>
+            <p style={{ color: '#666', lineHeight: '1.6' }}>دروس عالية الجودة مع أفضل الأساتذة، يمكن مشاهدتها في أي وقت</p>
+          </div>
+          
+          <div style={{
+            background: 'white',
+            padding: '40px 30px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            transition: 'transform 0.3s',
+            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>📝</div>
+            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>تمارين تفاعلية</h3>
+            <p style={{ color: '#666', lineHeight: '1.6' }}>تمارين مع تصحيح فوري لقياس مستواك وتحديد نقاط الضعف</p>
+          </div>
+          
+          <div style={{
+            background: 'white',
+            padding: '40px 30px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            transition: 'transform 0.3s',
+            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>🎯</div>
+            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>امتحانات وطنية</h3>
+            <p style={{ color: '#666', lineHeight: '1.6' }}>جميع الامتحانات الوطنية مع الحلول المفصلة والنصائح</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer style={{
+        background: '#1f2937',
+        color: 'white',
+        textAlign: 'center',
+        padding: '40px',
+        marginTop: '80px'
+      }}>
+        <p style={{ fontSize: '18px', marginBottom: '10px' }}>🎓 بوابة المعرفة المغربية</p>
+        <p style={{ opacity: 0.7, marginBottom: '20px' }}>معًا نبني مستقبل التعليم في المغرب</p>
+        <p style={{ opacity: 0.5, fontSize: '14px' }}>صنع بكل فخر لطلاب مدينة تاوريرت ✨</p>
+        <p style={{ opacity: 0.4, fontSize: '12px', marginTop: '20px' }}>© 2025 جميع الحقوق محفوظة</p>
+      </footer>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
