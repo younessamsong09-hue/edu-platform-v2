@@ -27,12 +27,14 @@ export default function Exercises() {
   }, [lessonId])
 
   async function fetchExercises() {
+    console.log('جاري جلب التمارين للدرس:', lessonId)
     const { data, error } = await supabase
       .from('exercises')
       .select('*')
       .eq('lesson_id', lessonId)
       .order('order_num')
 
+    console.log('النتيجة:', data)
     if (!error && data) {
       setExercises(data)
     }

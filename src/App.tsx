@@ -7,6 +7,7 @@ import LessonDetail from './pages/LessonDetail'
 import AdminPanel from './pages/AdminPanel'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+import Exercises from './pages/Exercises'
 
 function Navbar() {
   const location = useLocation()
@@ -95,6 +96,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<LessonDetail />} />
+        <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
