@@ -19,6 +19,7 @@ import Exams from './pages/Exams'
 import EnglishTips from './pages/EnglishTips'
 import Leaderboard from './pages/Leaderboard'
 import AITutor from './pages/AITutor'
+import Games from './pages/Games'
 import './dark-mode.css'
 
 function Navbar() {
@@ -45,9 +46,9 @@ function Navbar() {
   const navStyle = {
     background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
     backdropFilter: 'blur(10px)',
-    padding: '15px 20px',
+    padding: '12px 15px',
     display: 'flex',
-    gap: '12px',
+    gap: '10px',
     justifyContent: 'center',
     position: 'sticky' as const,
     top: 0,
@@ -61,7 +62,8 @@ function Navbar() {
     textDecoration: 'none',
     fontSize: '13px',
     padding: '5px 8px',
-    transition: 'color 0.3s'
+    transition: 'color 0.3s',
+    whiteSpace: 'nowrap' as const
   })
   
   return (
@@ -69,6 +71,7 @@ function Navbar() {
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
+      <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏆 التصنيف</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
@@ -104,6 +107,7 @@ function AppContent() {
         <Route path="/courses/lesson/:id" element={<LessonDetail />} />
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/exams" element={<Exams />} />
+        <Route path="/games" element={<Games />} />
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/ai-tutor" element={<AITutor />} />
