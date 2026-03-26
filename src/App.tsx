@@ -4,6 +4,7 @@ import { supabase } from './lib/supabaseClient'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import ThemeToggle from './components/ThemeToggle'
 import NotificationBell from './components/NotificationBell'
+import UserLevel from './components/UserLevel'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -16,6 +17,7 @@ import Profile from './pages/Profile'
 import Exercises from './pages/Exercises'
 import Exams from './pages/Exams'
 import EnglishTips from './pages/EnglishTips'
+import Leaderboard from './pages/Leaderboard'
 import './dark-mode.css'
 
 function Navbar() {
@@ -44,7 +46,7 @@ function Navbar() {
     backdropFilter: 'blur(10px)',
     padding: '15px 30px',
     display: 'flex',
-    gap: '20px',
+    gap: '15px',
     justifyContent: 'center',
     position: 'sticky' as const,
     top: 0,
@@ -56,7 +58,7 @@ function Navbar() {
   const linkStyle = (path: string) => ({
     color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
     textDecoration: 'none',
-    fontSize: '15px',
+    fontSize: '14px',
     padding: '5px 10px',
     transition: 'color 0.3s'
   })
@@ -66,7 +68,8 @@ function Navbar() {
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
-      <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح إنجليزية</Link>
+      <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏆 التصنيف</Link>
+      <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
       {user ? (
         <>
           <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
@@ -82,6 +85,7 @@ function Navbar() {
         <Link to="/login" style={linkStyle('/login')}>🔐 دخول</Link>
       )}
       <NotificationBell />
+      <UserLevel />
       <ThemeToggle />
     </nav>
   )
@@ -99,6 +103,7 @@ function AppContent() {
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/exams" element={<Exams />} />
         <Route path="/english-tips" element={<EnglishTips />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
