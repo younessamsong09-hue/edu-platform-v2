@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import LessonDetail from './pages/LessonDetail'
 import AdminPanel from './pages/AdminPanel'
+import AdminDashboard from './pages/AdminDashboard'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Exercises from './pages/Exercises'
@@ -66,13 +67,22 @@ function Navbar() {
             👤 ملفي
           </Link>
           {user.email === 'admin@example.com' && (
-            <Link to="/admin" style={{
-              color: isActive('/admin') ? '#667eea' : 'white',
-              textDecoration: 'none',
-              fontSize: '16px'
-            }}>
-              ⚙️ الإدارة
-            </Link>
+            <>
+              <Link to="/admin" style={{
+                color: isActive('/admin') ? '#667eea' : 'white',
+                textDecoration: 'none',
+                fontSize: '16px'
+              }}>
+                ⚙️ إضافة درس
+              </Link>
+              <Link to="/admin-dashboard" style={{
+                color: isActive('/admin-dashboard') ? '#667eea' : 'white',
+                textDecoration: 'none',
+                fontSize: '16px'
+              }}>
+                📊 لوحة التحكم
+              </Link>
+            </>
           )}
         </>
       ) : (
@@ -98,6 +108,7 @@ function App() {
         <Route path="/courses/:id" element={<LessonDetail />} />
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
