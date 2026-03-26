@@ -7,40 +7,46 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [isSignUp, setIsSignUp] = useState(false)
   const navigate = useNavigate()
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess('')
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+    if (isSignUp) {
+      // تسجيل حساب جديد
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
+      })
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        setError(error.message)
+      } else {
+        setSuccess('✅ تم إنشاء الحساب! يرجى تأكيد بريدك الإلكتروني')
+        setEmail('')
+        setPassword('')
+        setIsSignUp(false)
+      }
     } else {
-      navigate('/')
-    }
-    setLoading(false)
-  }
+      // تسجيل الدخول
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
 
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password
-    })
-
-    if (error) {
-      setError(error.message)
-    } else {
-      alert('تم إنشاء الحساب! يرجى تأكيد بريدك الإلكتروني')
+      if (error) {
+        setError(error.message)
+      } else {
+        navigate('/')
+      }
     }
     setLoading(false)
   }
@@ -62,7 +68,9 @@ export default function Login() {
         width: '100%',
         boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
       }}>
-        <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>🔐 تسجيل الدخول</h1>
+        <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '10px' }}>
+          {isSignUp ? '📝 إنشاء حساب جديد' : '🔐 تسجيل الدخول'}
+        </h1>
         
         {error && (
           <div style={{
@@ -71,45 +79,65 @@ export default function Login() {
             padding: '10px',
             borderRadius: '8px',
             marginBottom: '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            fontSize: '14px'
           }}>
             {error}
           </div>
         )}
         
-        <form>
+        {success && (
+          <div style={{
+            background: '#d4edda',
+            color: '#155724',
+            padding: '10px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            textAlign: 'center',
+            fontSize: '14px'
+          }}>
+            {success}
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="البريد الإلكتروني"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
             style={{
               width: '100%',
               padding: '12px',
               marginBottom: '15px',
               borderRadius: '8px',
               border: '1px solid #ddd',
-              fontSize: '16px'
+              fontSize: '16px',
+              boxSizing: 'border-box'
             }}
           />
           
           <input
             type="password"
-            placeholder="كلمة المرور"
+            placeholder="كلمة المرور (6 أحرف على الأقل)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
             style={{
               width: '100%',
               padding: '12px',
               marginBottom: '20px',
               borderRadius: '8px',
               border: '1px solid #ddd',
-              fontSize: '16px'
+              fontSize: '16px',
+              boxSizing: 'border-box'
             }}
           />
           
           <button
-            onClick={handleLogin}
+            type="submit"
             disabled={loading}
             style={{
               width: '100%',
@@ -120,29 +148,33 @@ export default function Login() {
               borderRadius: '8px',
               fontSize: '16px',
               cursor: 'pointer',
-              marginBottom: '10px'
+              marginBottom: '10px',
+              fontWeight: 'bold'
             }}
           >
-            {loading ? 'جاري...' : 'دخول'}
-          </button>
-          
-          <button
-            onClick={handleSignUp}
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: 'transparent',
-              color: '#4f46e5',
-              border: '2px solid #4f46e5',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: 'pointer'
-            }}
-          >
-            إنشاء حساب جديد
+            {loading ? 'جاري...' : (isSignUp ? 'إنشاء حساب' : 'دخول')}
           </button>
         </form>
+        
+        <button
+          onClick={() => {
+            setIsSignUp(!isSignUp)
+            setError('')
+            setSuccess('')
+          }}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: 'transparent',
+            color: '#4f46e5',
+            border: '2px solid #4f46e5',
+            borderRadius: '8px',
+            fontSize: '16px',
+            cursor: 'pointer'
+          }}
+        >
+          {isSignUp ? '🔐 لدي حساب بالفعل' : '📝 إنشاء حساب جديد'}
+        </button>
         
         <Link to="/" style={{
           display: 'block',
