@@ -16,9 +16,11 @@ export default function LessonDetail() {
   const { id } = useParams()
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [loading, setLoading] = useState(true)
+  const [exercisesCount, setExercisesCount] = useState(0)
 
   useEffect(() => {
     fetchLesson()
+    fetchExercisesCount()
   }, [id])
 
   async function fetchLesson() {
@@ -32,6 +34,17 @@ export default function LessonDetail() {
       setLesson(data)
     }
     setLoading(false)
+  }
+
+  async function fetchExercisesCount() {
+    const { count, error } = await supabase
+      .from('exercises')
+      .select('*', { count: 'exact', head: true })
+      .eq('lesson_id', id)
+
+    if (!error && count) {
+      setExercisesCount(count)
+    }
   }
 
   if (loading) {
@@ -83,9 +96,28 @@ export default function LessonDetail() {
               borderRadius: '12px'
             }}
             allowFullScreen
+            title={lesson.title_ar}
           />
         </div>
       )}
+      
+      {/* زر حل التمارين */}
+      <Link to={`/exercises/${lesson.id}`}>
+        <button style={{
+          width: '100%',
+          padding: '15px',
+          background: '#10b981',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          fontSize: '18px',
+          cursor: 'pointer',
+          marginTop: '20px',
+          fontWeight: 'bold'
+        }}>
+          📝 حل التمارين {exercisesCount > 0 ? `(${exercisesCount} تمرين)` : ''}
+        </button>
+      </Link>
       
       {lesson.content && (
         <div style={{
@@ -93,31 +125,12 @@ export default function LessonDetail() {
           padding: '30px',
           borderRadius: '12px',
           boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+          marginTop: '30px',
           lineHeight: '1.8'
         }}>
           <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
         </div>
       )}
-      
-      <div style={{
-        marginTop: '40px',
-        padding: '20px',
-        background: '#f3f4f6',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <button style={{
-          background: '#10b981',
-          color: 'white',
-          padding: '12px 30px',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: '16px'
-        }}>
-          📝 حل التمارين
-        </button>
-      </div>
     </div>
   )
 }

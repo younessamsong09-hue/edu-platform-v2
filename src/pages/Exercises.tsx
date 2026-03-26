@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 interface Exercise {
@@ -8,7 +8,6 @@ interface Exercise {
   options: string[]
   correct_answer: string
   explanation: string
-  difficulty: number
   points: number
 }
 
@@ -40,6 +39,60 @@ export default function Exercises() {
     setLoading(false)
   }
 
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '100px' }}>
+        <h2>⏳ جاري تحميل التمارين...</h2>
+      </div>
+    )
+  }
+
+  if (exercises.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '100px' }}>
+        <h2>📝 لا توجد تمارين لهذا الدرس بعد</h2>
+        <Link to="/courses">
+          <button style={{
+            marginTop: '20px',
+            background: '#667eea',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}>
+            العودة إلى الدروس
+          </button>
+        </Link>
+      </div>
+    )
+  }
+
+  if (completed) {
+    const totalPoints = exercises.reduce((sum, e) => sum + e.points, 0)
+    return (
+      <div style={{ maxWidth: '600px', margin: '100px auto', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '20px' }}>
+        <div style={{ fontSize: '80px' }}>🎉</div>
+        <h1>انتهيت!</h1>
+        <p style={{ fontSize: '24px', margin: '20px 0' }}>
+          نقاطك: {score} / {totalPoints}
+        </p>
+        <Link to={`/courses`}>
+          <button style={{
+            background: '#4f46e5',
+            color: 'white',
+            padding: '12px 30px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}>
+            العودة للدروس
+          </button>
+        </Link>
+      </div>
+    )
+  }
+
   const currentExercise = exercises[currentIndex]
 
   function checkAnswer() {
@@ -59,39 +112,6 @@ export default function Exercises() {
     } else {
       setCompleted(true)
     }
-  }
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '100px' }}>جاري تحميل التمارين...</div>
-  }
-
-  if (exercises.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
-        <h2>📝 لا توجد تمارين لهذا الدرس بعد</h2>
-        <p>سيتم إضافة التمارين قريباً</p>
-      </div>
-    )
-  }
-
-  if (completed) {
-    return (
-      <div style={{ maxWidth: '600px', margin: '100px auto', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '20px' }}>
-        <div style={{ fontSize: '80px' }}>🎉</div>
-        <h1>انتهيت!</h1>
-        <p style={{ fontSize: '24px', margin: '20px 0' }}>نقاطك: {score} / {exercises.reduce((sum, e) => sum + e.points, 0)}</p>
-        <button onClick={() => window.location.reload()} style={{
-          background: '#4f46e5',
-          color: 'white',
-          padding: '12px 30px',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
-        }}>
-          إعادة المحاولة
-        </button>
-      </div>
-    )
   }
 
   return (
@@ -116,7 +136,7 @@ export default function Exercises() {
         </h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px' }}>
-          {currentExercise.options.map((option, idx) => (
+          {currentExercise.options?.map((option, idx) => (
             <button
               key={idx}
               onClick={() => setSelectedAnswer(option)}
@@ -129,8 +149,7 @@ export default function Exercises() {
                 borderRadius: '12px',
                 cursor: showResult ? 'default' : 'pointer',
                 textAlign: 'right',
-                fontSize: '16px',
-                transition: '0.3s'
+                fontSize: '16px'
               }}
             >
               {option}
