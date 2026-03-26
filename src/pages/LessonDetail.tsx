@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { addLessonPoints } from '../lib/gamification'
 
 interface Lesson {
   id: number
@@ -201,7 +202,13 @@ export default function LessonDetail() {
 
     if (!error) {
       setIsCompleted(true)
-      alert('✅ تم إكمال الدرس بنجاح!')
+      
+      // إضافة نقاط لإكمال الدرس
+      if (lesson) {
+        await addLessonPoints(user.id, parseInt(id as string), lesson.title_ar)
+      }
+      
+      alert('✅ تم إكمال الدرس بنجاح! +50 نقطة')
     }
   }
 
@@ -247,7 +254,6 @@ export default function LessonDetail() {
     return stars
   }
 
-  // تنسيق عدد المشاهدات
   const formatViews = (views: number) => {
     if (views >= 1000) {
       return (views / 1000).toFixed(1) + 'K'
@@ -257,11 +263,10 @@ export default function LessonDetail() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
-      <Link to="/courses" style={{ color: '#667eea', textDecoration: 'none' }}>
-        ← العودة إلى الدروس
+      <Link to={`/courses/${lesson.subject_id}`} style={{ color: '#667eea', textDecoration: 'none' }}>
+        ← العودة إلى المادة
       </Link>
       
-      {/* أزرار المفضلة والإكمال */}
       <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '10px' }}>
         <button
           onClick={toggleFavorite}
@@ -289,7 +294,7 @@ export default function LessonDetail() {
               fontSize: '14px'
             }}
           >
-            ✅ إكمال الدرس
+            ✅ إكمال الدرس (+50 نقطة)
           </button>
         )}
         {isCompleted && (
@@ -309,7 +314,6 @@ export default function LessonDetail() {
         {lesson.title_ar}
       </h1>
       
-      {/* قسم الإحصائيات (المشاهدات والتقييم) */}
       <div style={{
         background: '#f9fafb',
         padding: '20px',
@@ -321,7 +325,6 @@ export default function LessonDetail() {
         flexWrap: 'wrap',
         gap: '15px'
       }}>
-        {/* المشاهدات */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '24px' }}>👁️</span>
           <div>
@@ -332,7 +335,6 @@ export default function LessonDetail() {
           </div>
         </div>
         
-        {/* التقييم */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <div>
             <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
@@ -345,7 +347,6 @@ export default function LessonDetail() {
           </div>
         </div>
         
-        {/* تقييم المستخدم */}
         {user && (
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
@@ -360,7 +361,7 @@ export default function LessonDetail() {
         {lesson.description}
       </p>
       
-      {lesson.video_url && (
+      {lesson.video_url && lesson.video_url !== '' && (
         <div style={{
           position: 'relative',
           paddingBottom: '56.25%',
@@ -380,6 +381,19 @@ export default function LessonDetail() {
             allowFullScreen
             title={lesson.title_ar}
           />
+        </div>
+      )}
+      
+      {lesson.content && (
+        <div style={{
+          background: 'white',
+          padding: '30px',
+          borderRadius: '12px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+          marginBottom: '20px',
+          lineHeight: '1.8'
+        }}>
+          <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
         </div>
       )}
       
