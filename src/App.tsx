@@ -20,6 +20,7 @@ import EnglishTips from './pages/EnglishTips'
 import Leaderboard from './pages/Leaderboard'
 import AITutor from './pages/AITutor'
 import Games from './pages/Games'
+import Competitions from './pages/Competitions'
 import './dark-mode.css'
 
 function Navbar() {
@@ -46,9 +47,9 @@ function Navbar() {
   const navStyle = {
     background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
     backdropFilter: 'blur(10px)',
-    padding: '12px 15px',
+    padding: '10px 12px',
     display: 'flex',
-    gap: '10px',
+    gap: '8px',
     justifyContent: 'center',
     position: 'sticky' as const,
     top: 0,
@@ -60,8 +61,8 @@ function Navbar() {
   const linkStyle = (path: string) => ({
     color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
     textDecoration: 'none',
-    fontSize: '13px',
-    padding: '5px 8px',
+    fontSize: '12px',
+    padding: '4px 6px',
     transition: 'color 0.3s',
     whiteSpace: 'nowrap' as const
   })
@@ -72,7 +73,8 @@ function Navbar() {
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
       <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
-      <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏆 التصنيف</Link>
+      <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
+      <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
       {user ? (
@@ -108,6 +110,7 @@ function AppContent() {
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/exams" element={<Exams />} />
         <Route path="/games" element={<Games />} />
+        <Route path="/competitions" element={<Competitions />} />
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/ai-tutor" element={<AITutor />} />
