@@ -6,6 +6,7 @@ import ThemeToggle from './components/ThemeToggle'
 import NotificationBell from './components/NotificationBell'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
+import SubjectDetail from './pages/SubjectDetail'
 import LessonDetail from './pages/LessonDetail'
 import AdminPanel from './pages/AdminPanel'
 import AdminDashboard from './pages/AdminDashboard'
@@ -93,7 +94,8 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/courses/:id" element={<LessonDetail />} />
+        <Route path="/courses/:id" element={<SubjectDetail />} />
+        <Route path="/courses/lesson/:id" element={<LessonDetail />} />
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/exams" element={<Exams />} />
         <Route path="/english-tips" element={<EnglishTips />} />
