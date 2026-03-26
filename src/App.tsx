@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import LessonDetail from './pages/LessonDetail'
+import AdminPanel from './pages/AdminPanel'
 
 function Navbar() {
   const location = useLocation()
@@ -25,8 +26,7 @@ function Navbar() {
         color: isActive('/') ? '#667eea' : 'white',
         textDecoration: 'none',
         fontSize: '16px',
-        fontWeight: isActive('/') ? 'bold' : 'normal',
-        transition: 'color 0.3s'
+        fontWeight: isActive('/') ? 'bold' : 'normal'
       }}>
         🏠 الرئيسية
       </Link>
@@ -34,10 +34,17 @@ function Navbar() {
         color: isActive('/courses') ? '#667eea' : 'white',
         textDecoration: 'none',
         fontSize: '16px',
-        fontWeight: isActive('/courses') ? 'bold' : 'normal',
-        transition: 'color 0.3s'
+        fontWeight: isActive('/courses') ? 'bold' : 'normal'
       }}>
         📚 الدروس
+      </Link>
+      <Link to="/admin" style={{
+        color: isActive('/admin') ? '#667eea' : 'white',
+        textDecoration: 'none',
+        fontSize: '16px',
+        fontWeight: isActive('/admin') ? 'bold' : 'normal'
+      }}>
+        ⚙️ الإدارة
       </Link>
     </nav>
   )
@@ -51,6 +58,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<LessonDetail />} />
+        <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </BrowserRouter>
   )
