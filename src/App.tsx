@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
+import LessonDetail from './pages/LessonDetail'
 
 function Navbar() {
   const location = useLocation()
@@ -25,8 +26,7 @@ function Navbar() {
         textDecoration: 'none',
         fontSize: '16px',
         fontWeight: isActive('/') ? 'bold' : 'normal',
-        transition: 'color 0.3s',
-        padding: '5px 10px'
+        transition: 'color 0.3s'
       }}>
         🏠 الرئيسية
       </Link>
@@ -35,8 +35,7 @@ function Navbar() {
         textDecoration: 'none',
         fontSize: '16px',
         fontWeight: isActive('/courses') ? 'bold' : 'normal',
-        transition: 'color 0.3s',
-        padding: '5px 10px'
+        transition: 'color 0.3s'
       }}>
         📚 الدروس
       </Link>
@@ -51,6 +50,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/courses/:id" element={<LessonDetail />} />
       </Routes>
     </BrowserRouter>
   )
