@@ -157,3 +157,8 @@ function App() {
 }
 
 export default App
+import ScrollToTop from './components/ScrollToTop'
+import Loader from './components/Loader'
+
+# وفي نهاية AppContent، قبل إغلاق BrowserRouter:
+<ScrollToTop />
