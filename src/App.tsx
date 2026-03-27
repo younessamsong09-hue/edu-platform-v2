@@ -6,8 +6,6 @@ import ThemeToggle from './components/ThemeToggle'
 import NotificationBell from './components/NotificationBell'
 import UserLevel from './components/UserLevel'
 import Wellness from './components/Wellness'
-import StudyBuddy from './components/StudyBuddy'
-import Pathfinder from './components/Pathfinder'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -124,10 +122,6 @@ function AppContent() {
   return (
     <BrowserRouter>
       <Navbar />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-        <Pathfinder />
-        <StudyBuddy />
-      </div>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />

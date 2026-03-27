@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import Pathfinder from '../components/Pathfinder'
+import StudyBuddy from '../components/StudyBuddy'
 
 export default function HomePage() {
   const [stats, setStats] = useState({
@@ -112,12 +114,18 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Pathfinder & StudyBuddy */}
+      <div style={{ maxWidth: '1200px', margin: '-30px auto 0', padding: '0 20px' }}>
+        <Pathfinder />
+        <StudyBuddy />
+      </div>
+
       {/* Stats Section */}
       <div style={{
         background: 'white',
         borderRadius: '30px',
         maxWidth: '1000px',
-        margin: '-50px auto 0',
+        margin: '40px auto 0',
         padding: '40px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
       }}>
