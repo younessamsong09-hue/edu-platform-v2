@@ -5,6 +5,9 @@ import { ThemeProvider, useTheme } from './context/ThemeContext'
 import ThemeToggle from './components/ThemeToggle'
 import NotificationBell from './components/NotificationBell'
 import UserLevel from './components/UserLevel'
+import Wellness from './components/Wellness'
+import StudyBuddy from './components/StudyBuddy'
+import Pathfinder from './components/Pathfinder'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -26,6 +29,11 @@ import Recommendations from './pages/Recommendations'
 import Library from './pages/Library'
 import BookAssistant from './pages/BookAssistant'
 import About from './pages/About'
+import NationalExams from './pages/NationalExams'
+import NeighborhoodLeaderboard from './pages/NeighborhoodLeaderboard'
+import PeerHelp from './pages/PeerHelp'
+import CommonMistakes from './pages/CommonMistakes'
+import GradeCalculator from './pages/GradeCalculator'
 import './dark-mode.css'
 
 function Navbar() {
@@ -77,10 +85,15 @@ function Navbar() {
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
+      <Link to="/national-exams" style={linkStyle('/national-exams')}>🎯 بكالوريا</Link>
       <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
       <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
       <Link to="/library" style={linkStyle('/library')}>📚 المكتبة</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
+      <Link to="/neighborhood-leaderboard" style={linkStyle('/neighborhood-leaderboard')}>🏘️ أحياء</Link>
+      <Link to="/peer-help" style={linkStyle('/peer-help')}>🤝 ساعد زميلك</Link>
+      <Link to="/common-mistakes" style={linkStyle('/common-mistakes')}>⚠️ أخطاء شائعة</Link>
+      <Link to="/grade-calculator" style={linkStyle('/grade-calculator')}>📊 حساب المعدل</Link>
       <Link to="/recommendations" style={linkStyle('/recommendations')}>🤖 توصيات</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
@@ -111,6 +124,10 @@ function AppContent() {
   return (
     <BrowserRouter>
       <Navbar />
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        <Pathfinder />
+        <StudyBuddy />
+      </div>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />
@@ -118,11 +135,16 @@ function AppContent() {
         <Route path="/courses/lesson/:id" element={<LessonDetail />} />
         <Route path="/exercises/:lessonId" element={<Exercises />} />
         <Route path="/exams" element={<Exams />} />
+        <Route path="/national-exams" element={<NationalExams />} />
         <Route path="/games" element={<Games />} />
         <Route path="/competitions" element={<Competitions />} />
         <Route path="/library" element={<Library />} />
         <Route path="/library/:id" element={<BookAssistant />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/neighborhood-leaderboard" element={<NeighborhoodLeaderboard />} />
+        <Route path="/peer-help" element={<PeerHelp />} />
+        <Route path="/common-mistakes" element={<CommonMistakes />} />
+        <Route path="/grade-calculator" element={<GradeCalculator />} />
         <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/ai-tutor" element={<AITutor />} />
@@ -134,6 +156,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
+      <Wellness />
     </BrowserRouter>
   )
 }
