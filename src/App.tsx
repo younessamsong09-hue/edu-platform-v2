@@ -7,6 +7,8 @@ import NotificationBell from './components/NotificationBell'
 import UserLevel from './components/UserLevel'
 import Wellness from './components/Wellness'
 import DeepWorkZone from './components/DeepWorkZone'
+import StudyRadar from './components/StudyRadar'
+import SmartNavigator from './components/SmartNavigator'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -34,6 +36,7 @@ import PeerHelp from './pages/PeerHelp'
 import CommonMistakes from './pages/CommonMistakes'
 import GradeCalculator from './pages/GradeCalculator'
 import CareerGuidance from './pages/CareerGuidance'
+import VisualMistakes from './pages/VisualMistakes'
 import './dark-mode.css'
 
 function Navbar() {
@@ -93,6 +96,7 @@ function Navbar() {
       <Link to="/neighborhood-leaderboard" style={linkStyle('/neighborhood-leaderboard')}>🏘️ أحياء</Link>
       <Link to="/peer-help" style={linkStyle('/peer-help')}>🤝 ساعد زميلك</Link>
       <Link to="/common-mistakes" style={linkStyle('/common-mistakes')}>⚠️ أخطاء شائعة</Link>
+      <Link to="/visual-mistakes" style={linkStyle('/visual-mistakes')}>🔍 بحث بالصور</Link>
       <Link to="/grade-calculator" style={linkStyle('/grade-calculator')}>📊 حساب المعدل</Link>
       <Link to="/career-guidance" style={linkStyle('/career-guidance')}>🎓 توجيه مدرسي</Link>
       <Link to="/recommendations" style={linkStyle('/recommendations')}>🤖 توصيات</Link>
@@ -141,6 +145,7 @@ function AppContent() {
         <Route path="/neighborhood-leaderboard" element={<NeighborhoodLeaderboard />} />
         <Route path="/peer-help" element={<PeerHelp />} />
         <Route path="/common-mistakes" element={<CommonMistakes />} />
+        <Route path="/visual-mistakes" element={<VisualMistakes />} />
         <Route path="/grade-calculator" element={<GradeCalculator />} />
         <Route path="/career-guidance" element={<CareerGuidance />} />
         <Route path="/recommendations" element={<Recommendations />} />
@@ -156,6 +161,7 @@ function AppContent() {
       </Routes>
       <Wellness />
       <DeepWorkZone />
+      <StudyRadar />
     </BrowserRouter>
   )
 }
