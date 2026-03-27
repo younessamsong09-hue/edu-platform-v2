@@ -8,8 +8,8 @@ import UserLevel from './components/UserLevel'
 import Wellness from './components/Wellness'
 import DeepWorkZone from './components/DeepWorkZone'
 import StudyRadar from './components/StudyRadar'
-import SmartNavigator from './components/SmartNavigator'
 import MobileMenu from './components/MobileMenu'
+import ScrollToTop from './components/ScrollToTop'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -144,6 +144,7 @@ function AppContent() {
       <DeepWorkZone />
       <StudyRadar />
       <MobileMenu />
+      <ScrollToTop />
     </BrowserRouter>
   )
 }
@@ -157,8 +158,3 @@ function App() {
 }
 
 export default App
-import ScrollToTop from './components/ScrollToTop'
-import Loader from './components/Loader'
-
-# وفي نهاية AppContent، قبل إغلاق BrowserRouter:
-<ScrollToTop />
