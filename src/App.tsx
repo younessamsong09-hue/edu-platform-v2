@@ -22,6 +22,7 @@ import AITutor from './pages/AITutor'
 import AITutorDarija from './pages/AITutorDarija'
 import Games from './pages/Games'
 import Competitions from './pages/Competitions'
+import Recommendations from './pages/Recommendations'
 import './dark-mode.css'
 
 function Navbar() {
@@ -76,6 +77,7 @@ function Navbar() {
       <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
       <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
+      <Link to="/recommendations" style={linkStyle('/recommendations')}>🤖 توصيات</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
       <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
@@ -113,8 +115,9 @@ function AppContent() {
         <Route path="/exams" element={<Exams />} />
         <Route path="/games" element={<Games />} />
         <Route path="/competitions" element={<Competitions />} />
-        <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/recommendations" element={<Recommendations />} />
+        <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/ai-tutor" element={<AITutor />} />
         <Route path="/ai-darija" element={<AITutorDarija />} />
         <Route path="/admin" element={<AdminPanel />} />
