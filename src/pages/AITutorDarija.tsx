@@ -25,6 +25,8 @@ export default function AITutorDarija() {
   const [content, setContent] = useState<EducationalContent[]>([])
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [currentSpeakingId, setCurrentSpeakingId] = useState<string | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const recognitionRef = useRef<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -93,10 +95,9 @@ export default function AITutorDarija() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // دالة النطق بالدارجة
+  // دالة النطق
   const speak = (text: string, messageId: string) => {
     if ('speechSynthesis' in window) {
-      // إيقاف أي نطق جاري
       if (isSpeaking) {
         window.speechSynthesis.cancel()
       }
@@ -105,12 +106,10 @@ export default function AITutorDarija() {
       setCurrentSpeakingId(messageId)
       
       const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'ar-MA' // اللهجة المغربية
-      utterance.rate = 0.85 // سرعة النطق (أبطأ قليلاً)
-      utterance.pitch = 1.1 // درجة الصوت
-      utterance.volume = 1
+      utterance.lang = 'ar-MA'
+      utterance.rate = 0.85
+      utterance.pitch = 1.1
   
-      // اختيار صوت عربي إذا كان متاحاً
       const voices = window.speechSynthesis.getVoices()
       const arabicVoice = voices.find(voice => voice.lang.includes('ar'))
       if (arabicVoice) {
@@ -128,12 +127,9 @@ export default function AITutorDarija() {
       }
   
       window.speechSynthesis.speak(utterance)
-    } else {
-      alert("متصفحك لا يدعم خاصية النطق")
     }
   }
 
-  // إيقاف النطق
   const stopSpeaking = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel()
@@ -142,9 +138,65 @@ export default function AITutorDarija() {
     }
   }
 
+  // دالة الإدخال الصوتي
+  const startRecording = () => {
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new (window as any).webkitSpeechRecognition()
+      recognition.lang = 'ar-MA'
+      recognition.continuous = false
+      recognition.interimResults = false
+      
+      recognition.onstart = () => {
+        setIsRecording(true)
+      }
+      
+      recognition.onresult = (event: any) => {
+        const text = event.results[0][0].transcript
+        setInputMessage(text)
+        setIsRecording(false)
+      }
+      
+      recognition.onerror = () => {
+        setIsRecording(false)
+        alert("ما قدرتش نسمعك. عاود حاول")
+      }
+      
+      recognition.start()
+      recognitionRef.current = recognition
+    } else {
+      alert("متصفحك ما كايدعمش الإدخال الصوتي")
+    }
+  }
+
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setIsRecording(false)
+    }
+  }
+
+  // حل المعادلات
+  const solveEquation = (equation: string): string | null => {
+    const linearMatch = equation.match(/(\d*)س\s*([+-])\s*(\d+)\s*=\s*(\d+)/)
+    if (linearMatch) {
+      const a = linearMatch[1] ? parseInt(linearMatch[1]) : 1
+      const sign = linearMatch[2]
+      const b = parseInt(linearMatch[3])
+      const c = parseInt(linearMatch[4])
+      
+      if (sign === '+') {
+        const result = (c - b) / a
+        return `📐 **حل المعادلة**:\n\n${equation}\n\nالخطوة 1: نحيدو ${b} من الطرفين\n${a}س = ${c - b}\n\nالخطوة 2: نقسمو على ${a}\nس = ${result}\n\n✅ الحل: س = ${result}`
+      } else {
+        const result = (c + b) / a
+        return `📐 **حل المعادلة**:\n\n${equation}\n\nالخطوة 1: نزيدو ${b} للطرفين\n${a}س = ${c + b}\n\nالخطوة 2: نقسمو على ${a}\nس = ${result}\n\n✅ الحل: س = ${result}`
+      }
+    }
+    return null
+  }
+
   const searchInContent = (question: string): EducationalContent | null => {
     const q = question.toLowerCase()
-    
     for (const item of content) {
       if (q.includes(item.topic_darija.toLowerCase()) ||
           item.keywords?.some(k => q.includes(k.toLowerCase()))) {
@@ -157,13 +209,17 @@ export default function AITutorDarija() {
   const getDarijaResponse = async (question: string): Promise<string> => {
     const q = question.toLowerCase()
     
+    // حل المعادلات أولاً
+    const equationSolution = solveEquation(question)
+    if (equationSolution) return equationSolution
+    
     // البحث في قاعدة المعرفة
     const foundContent = searchInContent(question)
     if (foundContent) {
       return `📚 **${foundContent.topic_darija}**\n\n${foundContent.explanation_darija}\n\nواش بغيتي نزيدو نشرح هاد الموضوع؟`
     }
     
-    // ردود سريعة حسب المادة
+    // ردود سريعة
     if (q.includes('رياضيات') || q.includes('معادلة')) {
       return `📐 **الرياضيات بالدارجة**:\n\nهيا نحلوا مع بعض:\n\nمثال: 2س + 5 = 15\n1. نحيدو 5 من الطرفين: 2س = 10\n2. نقسمو على 2: س = 5\n\nعندك معادلة معينة؟ دوزها ليا!`
     }
@@ -176,23 +232,11 @@ export default function AITutorDarija() {
       return `📖 **العربية بالدارجة**:\n\nأقسام الكلمة:\n🔹 الاسم: كتاب، شجرة\n🔹 الفعل: كتب، يكتب\n🔹 الحرف: في، على، من\n\nبغيتي نمثلك بجملة؟`
     }
     
-    if (q.includes('انجليزي') || q.includes('english')) {
-      return `🇬🇧 **English with Darija**:\n\nPresent Simple:\nI/You/We/They + verb\nHe/She/It + verb + s\n\nExample:\nI play football.\nShe plays tennis.\n\nWant more examples?`
-    }
-    
-    if (q.includes('فرنسي') || q.includes('french')) {
-      return `🇫🇷 **Français avec Darija**:\n\nLes salutations:\nBonjour = صباح الخير\nBonsoir = مساء الخير\nComment ça va? = كيفاش حالك؟\nAu revoir = مع السلامة`
-    }
-    
     if (q.includes('امتحان') || q.includes('بكالوريا')) {
       return `📝 **نصائح للبكالوريا**:\n\n1. نظم وقتك\n2. راجع بانتظام\n3. حل تمارين السنوات السابقة\n4. نام مليح قبل الامتحان\n5. كل صحي\n\nبغيتي نصائح لمادة معينة؟`
     }
     
-    if (q.includes('شكرا') || q.includes('merci')) {
-      return `العفو! 🙏 أنا هنا باش نعاونك فكل وقت. واش عندك سؤال آخر؟`
-    }
-    
-    return `🤖 **المدرس الذكي بالدارجة**:\n\nأهلا بيك! تقدر تسألني على:\n\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n🇬🇧 الإنجليزية\n🇫🇷 الفرنسية\n📝 نصائح للبكالوريا\n\nشنو حاب تسأل عليه؟`
+    return `🤖 **المدرس الذكي بالدارجة**:\n\nأهلا بيك! تقدر تسألني على:\n\n📐 الرياضيات (حل المعادلات)\n⚛️ الفيزياء (قوانين نيوتن)\n📖 العربية (أقسام الكلمة)\n📝 نصائح للبكالوريا\n\nشنو حاب تسأل عليه؟`
   }
 
   const sendMessage = async () => {
@@ -220,7 +264,6 @@ export default function AITutorDarija() {
       setMessages(prev => [...prev, aiMessage])
       setIsLoading(false)
       
-      // نطق الرد تلقائياً
       setTimeout(() => {
         speak(aiResponse, aiMessage.id)
       }, 500)
@@ -282,7 +325,6 @@ export default function AITutorDarija() {
                 cursor: isSpeaking ? 'pointer' : 'not-allowed',
                 marginRight: '10px'
               }}
-              title="إيقاف النطق"
             >
               ⏹️ إيقاف
             </button>
@@ -302,11 +344,10 @@ export default function AITutorDarija() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>📐 رياضيات</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>📐 حل معادلات</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>⚛️ فيزياء</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>📖 عربية</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>🇬🇧 إنجليزية</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>🇫🇷 فرنسية</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>🎤 صوتي</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '20px', fontSize: '10px' }}>🔊 نطق</span>
         </div>
       </div>
@@ -358,10 +399,9 @@ export default function AITutorDarija() {
                       border: 'none',
                       fontSize: '14px',
                       cursor: 'pointer',
-                      color: message.sender === 'user' ? 'white' : '#667eea',
+                      color: '#667eea',
                       padding: '2px 5px'
                     }}
-                    title="استمع للرد"
                   >
                     🔊
                   </button>
@@ -394,7 +434,7 @@ export default function AITutorDarija() {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="اكتب سؤالك بالدارجة... مثلاً: شرحلي المعادلات، شنو هو قانون نيوتن"
+          placeholder="اكتب سؤالك بالدارجة... أو استخدم الميكروفون 🎤"
           style={{
             flex: 1,
             padding: '12px',
@@ -407,6 +447,20 @@ export default function AITutorDarija() {
           }}
           rows={2}
         />
+        <button
+          onClick={isRecording ? stopRecording : startRecording}
+          style={{
+            padding: '12px',
+            background: isRecording ? '#ef4444' : '#10b981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            cursor: 'pointer'
+          }}
+          title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
+        >
+          {isRecording ? '⏹️' : '🎤'}
+        </button>
         <button
           onClick={sendMessage}
           disabled={isLoading || !inputMessage.trim()}
@@ -440,10 +494,33 @@ export default function AITutorDarija() {
         </button>
       </Link>
 
+      {isSpeaking && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: '#667eea',
+          color: 'white',
+          padding: '10px 15px',
+          borderRadius: '30px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          zIndex: 1000
+        }}>
+          <span style={{ animation: 'pulse 1s infinite' }}>🔊</span>
+          <span>جاري النطق...</span>
+        </div>
+      )}
+
       <style>{`
         @keyframes blink {
           0%, 100% { opacity: 0.3; }
           50% { opacity: 1; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.1); }
         }
       `}</style>
     </div>
