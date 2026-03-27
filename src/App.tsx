@@ -25,6 +25,7 @@ import Competitions from './pages/Competitions'
 import Recommendations from './pages/Recommendations'
 import Library from './pages/Library'
 import BookAssistant from './pages/BookAssistant'
+import About from './pages/About'
 import './dark-mode.css'
 
 function Navbar() {
@@ -84,6 +85,7 @@ function Navbar() {
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
       <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
+      <Link to="/about" style={linkStyle('/about')}>📖 عن المنصة</Link>
       {user ? (
         <>
           <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
@@ -125,6 +127,7 @@ function AppContent() {
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/ai-tutor" element={<AITutor />} />
         <Route path="/ai-darija" element={<AITutorDarija />} />
+        <Route path="/about" element={<About />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
