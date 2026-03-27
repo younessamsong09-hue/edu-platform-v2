@@ -9,6 +9,23 @@ interface Message {
   timestamp: Date
 }
 
+interface Lesson {
+  id: number
+  title: string
+  title_ar: string
+  description: string
+  content: string
+  subject_id: number
+  subject_name?: string
+}
+
+interface Subject {
+  id: number
+  name_ar: string
+  icon: string
+  color: string
+}
+
 export default function AITutorDarija() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
@@ -16,14 +33,20 @@ export default function AITutorDarija() {
   const [user, setUser] = useState<any>(null)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [searching, setSearching] = useState(false)
+  const [foundLessons, setFoundLessons] = useState<Lesson[]>([])
   const recognitionRef = useRef<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [subjects, setSubjects] = useState<Subject[]>([])
 
   useEffect(() => {
     checkUser()
+    fetchSubjects()
+    loadConversation()
+    
     setMessages([{
       id: '1',
-      text: 'سلام عليكم! 🌟\n\nأنا المدرس الذكي ديالكم بالدارجة.\n\nأقدر نعاونك فهاد المواد:\n\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n📝 نصائح للبكالوريا\n\nشنو حاب تسأل عليه؟',
+      text: 'سلام عليكم! 🌟\n\nأنا المدرس الذكي ديالكم بالدارجة.\n\nأقدر نعاونك فهاد المواد:\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n🇬🇧 الإنجليزية\n🇫🇷 الفرنسية\n\nواش حاب تسأل عليه؟',
       sender: 'ai',
       timestamp: new Date()
     }])
@@ -34,14 +57,92 @@ export default function AITutorDarija() {
     setUser(user)
   }
 
+  async function fetchSubjects() {
+    const { data } = await supabase
+      .from('subjects')
+      .select('id, name_ar, icon, color')
+      .order('id')
+    
+    if (data) setSubjects(data)
+  }
+
+  async function loadConversation() {
+    if (!user) return
+    
+    const { data } = await supabase
+      .from('tutor_conversations')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single()
+    
+    if (data && data.messages) {
+      setMessages(data.messages)
+    }
+  }
+
+  async function saveConversation(messagesList: Message[]) {
+    if (!user) return
+    
+    await supabase
+      .from('tutor_conversations')
+      .upsert({
+        user_id: user.id,
+        messages: messagesList,
+        updated_at: new Date().toISOString()
+      })
+  }
+
   useEffect(() => {
     scrollToBottom()
+    if (messages.length > 0 && user) {
+      saveConversation(messages)
+    }
   }, [messages])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // دالة البحث في الدروس
+  async function searchInLessons(query: string): Promise<Lesson[]> {
+    setSearching(true)
+    
+    const { data } = await supabase
+      .from('lessons')
+      .select('*, subjects(name_ar)')
+      .ilike('title_ar', `%${query}%`)
+      .eq('is_published', true)
+      .limit(5)
+    
+    if (data && data.length > 0) {
+      return data.map(l => ({
+        ...l,
+        subject_name: l.subjects?.name_ar
+      }))
+    }
+    
+    // بحث في الوصف أيضاً
+    const { data: descData } = await supabase
+      .from('lessons')
+      .select('*, subjects(name_ar)')
+      .ilike('description', `%${query}%`)
+      .eq('is_published', true)
+      .limit(5)
+    
+    if (descData && descData.length > 0) {
+      return descData.map(l => ({
+        ...l,
+        subject_name: l.subjects?.name_ar
+      }))
+    }
+    
+    setSearching(false)
+    return []
+  }
+
+  // دالة النطق
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
       if (isSpeaking) window.speechSynthesis.cancel()
@@ -54,13 +155,18 @@ export default function AITutorDarija() {
     }
   }
 
+  // دالة الإدخال الصوتي
   const startRecording = () => {
     if ('webkitSpeechRecognition' in window) {
       const recognition = new (window as any).webkitSpeechRecognition()
       recognition.lang = 'ar-MA'
+      recognition.continuous = false
+      recognition.interimResults = false
+      
       recognition.onstart = () => setIsRecording(true)
       recognition.onresult = (event: any) => {
-        setInputMessage(event.results[0][0].transcript)
+        const text = event.results[0][0].transcript
+        setInputMessage(text)
         setIsRecording(false)
       }
       recognition.onerror = () => {
@@ -81,26 +187,46 @@ export default function AITutorDarija() {
     }
   }
 
-  const getResponse = (question: string): string => {
+  // الردود بالدارجة مع البحث في الدروس
+  const getResponse = async (question: string): Promise<string> => {
     const q = question.toLowerCase()
     
+    // البحث في الدروس أولاً
+    const lessons = await searchInLessons(question)
+    
+    if (lessons.length > 0) {
+      setFoundLessons(lessons)
+      let response = `📚 **لقيت دروس كاتشبه لسؤالك:**\n\n`
+      
+      lessons.forEach((lesson, index) => {
+        const subject = subjects.find(s => s.id === lesson.subject_id)
+        response += `${index + 1}. **${lesson.title_ar}**\n`
+        response += `   📖 ${subject?.name_ar || 'عام'} | ${lesson.description?.substring(0, 80)}...\n`
+        response += `   🔗 /courses/lesson/${lesson.id}\n\n`
+      })
+      
+      response += `واش بغيتي نعاونك فوحدة منهم؟`
+      return response
+    }
+    
+    // ردود سريعة حسب المادة
     if (q.includes('رياضيات') || q.includes('معادلة')) {
-      return `📐 **الرياضيات**\n\nمثال: 2س + 5 = 15\n\nالخطوة 1: نحيدو 5 من الطرفين\n2س = 15 - 5 = 10\n\nالخطوة 2: نقسمو على 2\nس = 10 ÷ 2 = 5\n\n✅ الحل: س = 5`
+      return `📐 **الرياضيات بالدارجة**\n\nهيا نحلوا مع بعض:\n\nمثال: 2س + 5 = 15\n1. نحيدو 5 من الطرفين: 2س = 10\n2. نقسمو على 2: س = 5\n\nعندك معادلة معينة؟ دوزها ليا!`
     }
     
     if (q.includes('فيزياء') || q.includes('نيوتن')) {
-      return `⚛️ **الفيزياء**\n\nقوانين نيوتن:\n\n1️⃣ الجسم الساكن يبقى ساكن\n2️⃣ القوة = الكتلة × التسارع\n3️⃣ لكل فعل رد فعل مساوي ليه`
+      return `⚛️ **الفيزياء بالدارجة**\n\nقوانين نيوتن:\n\n1️⃣ الجسم الساكن يبقى ساكن\n2️⃣ القوة = الكتلة × التسارع\n3️⃣ لكل فعل رد فعل مساوي ليه\n\nواش بغيتي شرح لواحد منهم؟`
     }
     
     if (q.includes('عربية') || q.includes('نحو')) {
-      return `📖 **العربية**\n\nأقسام الكلمة:\n🔹 الاسم: كتاب، شجرة\n🔹 الفعل: كتب، يكتب\n🔹 الحرف: في، على، من`
+      return `📖 **العربية بالدارجة**\n\nأقسام الكلمة:\n🔹 الاسم: كتاب، شجرة\n🔹 الفعل: كتب، يكتب\n🔹 الحرف: في، على، من\n\nبغيتي نمثلك بجملة؟`
     }
     
     if (q.includes('امتحان') || q.includes('بكالوريا')) {
-      return `📝 **نصائح للبكالوريا**\n\n1. نظم وقتك\n2. راجع بانتظام\n3. حل تمارين السنوات السابقة\n4. نام مليح\n5. كل صحي`
+      return `📝 **نصائح للبكالوريا بالدارجة**\n\n1. نظم وقتك\n2. راجع بانتظام\n3. حل تمارين السنوات السابقة\n4. نام مليح\n5. كل صحي\n\nبغيتي نصائح لمادة معينة؟`
     }
     
-    return `🤖 **المدرس الذكي**\n\nتقدر تسألني على:\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n📝 نصائح بكالوريا\n\nشنو حاب تسأل عليه؟`
+    return `🤖 **المدرس الذكي بالدارجة**\n\nأهلا بيك! تقدر تسألني على:\n\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n📝 نصائح للبكالوريا\n\nأو تقدر تسألني على أي درس وندور عليه فالمكتبة ديالنا!\n\nشنو حاب تسأل عليه؟`
   }
 
   const sendMessage = async () => {
@@ -116,9 +242,10 @@ export default function AITutorDarija() {
     const userQuestion = inputMessage
     setInputMessage('')
     setIsLoading(true)
+    setFoundLessons([])
 
-    setTimeout(() => {
-      const aiResponse = getResponse(userQuestion)
+    setTimeout(async () => {
+      const aiResponse = await getResponse(userQuestion)
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: aiResponse,
@@ -127,7 +254,11 @@ export default function AITutorDarija() {
       }
       setMessages(prev => [...prev, aiMessage])
       setIsLoading(false)
-    }, 500)
+      
+      setTimeout(() => {
+        speak(aiResponse)
+      }, 500)
+    }, 800)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -137,18 +268,26 @@ export default function AITutorDarija() {
     }
   }
 
-  const clearChat = () => {
-    setMessages([{
-      id: Date.now().toString(),
-      text: 'سلام عليكم! شنو حاب تسأل عليه؟',
-      sender: 'ai',
-      timestamp: new Date()
-    }])
+  const clearChat = async () => {
+    if (confirm('واش بغيتي تمحي كل المحادثة؟')) {
+      setMessages([{
+        id: Date.now().toString(),
+        text: 'سلام عليكم! أنا المدرس الذكي ديالكم. شنو حاب تسأل عليه؟',
+        sender: 'ai',
+        timestamp: new Date()
+      }])
+      if (user) {
+        await supabase
+          .from('tutor_conversations')
+          .delete()
+          .eq('user_id', user.id)
+      }
+    }
   }
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '10px', height: 'calc(100vh - 60px)', display: 'flex', flexDirection: 'column' }}>
-      {/* Header صغير */}
+      {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #667eea, #764ba2)',
         borderRadius: '15px',
@@ -161,7 +300,7 @@ export default function AITutorDarija() {
             <span style={{ fontSize: '28px' }}>🤖</span>
             <div>
               <h2 style={{ fontSize: '16px', margin: 0 }}>المدرس الذكي بالدارجة</h2>
-              <p style={{ fontSize: '10px', opacity: 0.8, margin: 0 }}>اسألني بالدارجة</p>
+              <p style={{ fontSize: '10px', opacity: 0.8, margin: 0 }}>يبحث في الدروس + نطق + صوتي</p>
             </div>
           </div>
           <button onClick={clearChat} style={{
@@ -180,11 +319,12 @@ export default function AITutorDarija() {
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '15px', fontSize: '10px' }}>📐 رياضيات</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '15px', fontSize: '10px' }}>⚛️ فيزياء</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '15px', fontSize: '10px' }}>📖 عربية</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '15px', fontSize: '10px' }}>🔍 بحث في الدروس</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '15px', fontSize: '10px' }}>🎤 صوتي</span>
         </div>
       </div>
 
-      {/* منطقة الرسائل */}
+      {/* Messages */}
       <div style={{
         flex: 1,
         overflowY: 'auto',
@@ -209,7 +349,17 @@ export default function AITutorDarija() {
               whiteSpace: 'pre-wrap'
             }}>
               <div style={{ fontSize: '13px', lineHeight: '1.5' }}>
-                {msg.text}
+                {msg.text.split('\n').map((line, i) => (
+                  <div key={i}>
+                    {line.includes('/courses/lesson/') ? (
+                      <Link to={line.split('🔗 ')[1]} style={{ color: msg.sender === 'user' ? 'white' : '#667eea', textDecoration: 'underline' }}>
+                        {line}
+                      </Link>
+                    ) : (
+                      line
+                    )}
+                  </div>
+                ))}
               </div>
               <div style={{
                 fontSize: '9px',
@@ -239,20 +389,20 @@ export default function AITutorDarija() {
         {isLoading && (
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
             <div style={{ background: 'white', padding: '8px 15px', borderRadius: '18px' }}>
-              <span style={{ animation: 'pulse 1s infinite' }}>✍️</span>
+              {searching ? '🔍 جاري البحث في الدروس...' : '✍️ جاري التفكير...'}
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* منطقة الإدخال */}
+      {/* Input */}
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <textarea
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="اكتب سؤالك..."
+          placeholder="اسأل عن أي درس... مثلاً: شرح المعادلات أو بحث عن الدوال"
           style={{
             flex: 1,
             padding: '10px',
