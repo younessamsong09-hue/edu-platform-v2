@@ -57,9 +57,7 @@ export default function HomePage() {
         textAlign: 'center',
         color: 'white'
       }}>
-        <div style={{
-          animation: 'fadeInUp 0.8s ease-out'
-        }}>
+        <div>
           <div style={{ fontSize: '80px', marginBottom: '20px' }}>🎓</div>
           <h1 style={{ 
             fontSize: '48px', 
@@ -87,7 +85,7 @@ export default function HomePage() {
                 border: 'none',
                 borderRadius: '50px',
                 cursor: 'pointer',
-                transition: 'transform 0.3s, box-shadow 0.3s',
+                transition: 'all 0.3s',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
               }}>
                 🚀 استكشف الدروس
@@ -96,15 +94,16 @@ export default function HomePage() {
             
             <Link to="/login">
               <button style={{
-                background: 'transparent',
+                background: '#10b981',
                 color: 'white',
                 padding: '15px 40px',
                 fontSize: '18px',
                 fontWeight: 'bold',
-                border: '2px solid white',
+                border: 'none',
                 borderRadius: '50px',
                 cursor: 'pointer',
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
               }}>
                 📝 تسجيل جديد
               </button>
@@ -165,53 +164,44 @@ export default function HomePage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '30px'
         }}>
-          <Link to="/courses" style={{ textDecoration: 'none' }}>
-            <div style={{
-              background: 'white',
-              padding: '40px 30px',
-              borderRadius: '20px',
-              textAlign: 'center',
-              transition: 'transform 0.3s',
-              boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
-              cursor: 'pointer'
-            }}>
-              <div style={{ fontSize: '60px', marginBottom: '20px' }}>📹</div>
-              <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>دروس فيديو</h3>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>دروس عالية الجودة مع أفضل الأساتذة، يمكن مشاهدتها في أي وقت</p>
-            </div>
-          </Link>
+          <div style={{
+            background: 'white',
+            padding: '40px 30px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            transition: 'transform 0.3s',
+            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>📝</div>
+            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>تمارين تفاعلية</h3>
+            <p style={{ color: '#666', lineHeight: '1.6' }}>تمارين مع تصحيح فوري لقياس مستواك وتحديد نقاط الضعف</p>
+          </div>
           
-          <Link to="/courses" style={{ textDecoration: 'none' }}>
-            <div style={{
-              background: 'white',
-              padding: '40px 30px',
-              borderRadius: '20px',
-              textAlign: 'center',
-              transition: 'transform 0.3s',
-              boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
-              cursor: 'pointer'
-            }}>
-              <div style={{ fontSize: '60px', marginBottom: '20px' }}>📝</div>
-              <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>تمارين تفاعلية</h3>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>تمارين مع تصحيح فوري لقياس مستواك وتحديد نقاط الضعف</p>
-            </div>
-          </Link>
+          <div style={{
+            background: 'white',
+            padding: '40px 30px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            transition: 'transform 0.3s',
+            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>📹</div>
+            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>دروس فيديو</h3>
+            <p style={{ color: '#666', lineHeight: '1.6' }}>دروس عالية الجودة مع أفضل الأساتذة، يمكن مشاهدتها في أي وقت</p>
+          </div>
           
-          <Link to="/exams" style={{ textDecoration: 'none' }}>
-            <div style={{
-              background: 'white',
-              padding: '40px 30px',
-              borderRadius: '20px',
-              textAlign: 'center',
-              transition: 'transform 0.3s',
-              boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
-              cursor: 'pointer'
-            }}>
-              <div style={{ fontSize: '60px', marginBottom: '20px' }}>🎯</div>
-              <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>امتحانات وطنية</h3>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>جميع الامتحانات الوطنية مع الحلول المفصلة والنصائح</p>
-            </div>
-          </Link>
+          <div style={{
+            background: 'white',
+            padding: '40px 30px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            transition: 'transform 0.3s',
+            boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>🎯</div>
+            <h3 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>امتحانات وطنية</h3>
+            <p style={{ color: '#666', lineHeight: '1.6' }}>جميع الامتحانات الوطنية مع الحلول المفصلة والنصائح</p>
+          </div>
         </div>
       </div>
 
