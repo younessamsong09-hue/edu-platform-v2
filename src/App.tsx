@@ -19,6 +19,7 @@ import Exams from './pages/Exams'
 import EnglishTips from './pages/EnglishTips'
 import Leaderboard from './pages/Leaderboard'
 import AITutor from './pages/AITutor'
+import AITutorDarija from './pages/AITutorDarija'
 import Games from './pages/Games'
 import Competitions from './pages/Competitions'
 import './dark-mode.css'
@@ -47,9 +48,9 @@ function Navbar() {
   const navStyle = {
     background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
     backdropFilter: 'blur(10px)',
-    padding: '10px 12px',
+    padding: '8px 10px',
     display: 'flex',
-    gap: '8px',
+    gap: '6px',
     justifyContent: 'center',
     position: 'sticky' as const,
     top: 0,
@@ -61,7 +62,7 @@ function Navbar() {
   const linkStyle = (path: string) => ({
     color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
     textDecoration: 'none',
-    fontSize: '12px',
+    fontSize: '11px',
     padding: '4px 6px',
     transition: 'color 0.3s',
     whiteSpace: 'nowrap' as const
@@ -76,6 +77,7 @@ function Navbar() {
       <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
+      <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
       <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
       {user ? (
         <>
@@ -114,6 +116,7 @@ function AppContent() {
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/ai-tutor" element={<AITutor />} />
+        <Route path="/ai-darija" element={<AITutorDarija />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
