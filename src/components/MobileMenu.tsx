@@ -43,7 +43,7 @@ export default function MobileMenu() {
         background: 'white',
         display: 'flex',
         justifyContent: 'space-around',
-        padding: '8px 12px',
+        padding: '10px 12px',
         boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
         zIndex: 1000,
         borderTop: '1px solid #eee'
@@ -63,7 +63,7 @@ export default function MobileMenu() {
               padding: '4px 8px'
             }}
           >
-            <span style={{ fontSize: '20px' }}>{link.icon}</span>
+            <span style={{ fontSize: '24px' }}>{link.icon}</span>
             <span>{link.label}</span>
           </Link>
         ))}
@@ -82,7 +82,7 @@ export default function MobileMenu() {
             cursor: 'pointer'
           }}
         >
-          <span style={{ fontSize: '20px' }}>☰</span>
+          <span style={{ fontSize: '24px' }}>☰</span>
           <span>القائمة</span>
         </button>
       </div>
@@ -135,7 +135,7 @@ export default function MobileMenu() {
                   marginBottom: '5px'
                 }}
               >
-                <span style={{ fontSize: '20px' }}>{link.icon}</span>
+                <span style={{ fontSize: '24px' }}>{link.icon}</span>
                 <span>{link.label}</span>
               </Link>
             ))}
