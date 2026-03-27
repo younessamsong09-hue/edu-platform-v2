@@ -23,6 +23,8 @@ import AITutorDarija from './pages/AITutorDarija'
 import Games from './pages/Games'
 import Competitions from './pages/Competitions'
 import Recommendations from './pages/Recommendations'
+import Library from './pages/Library'
+import BookAssistant from './pages/BookAssistant'
 import './dark-mode.css'
 
 function Navbar() {
@@ -76,6 +78,7 @@ function Navbar() {
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
       <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
       <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
+      <Link to="/library" style={linkStyle('/library')}>📚 المكتبة</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
       <Link to="/recommendations" style={linkStyle('/recommendations')}>🤖 توصيات</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
@@ -115,6 +118,8 @@ function AppContent() {
         <Route path="/exams" element={<Exams />} />
         <Route path="/games" element={<Games />} />
         <Route path="/competitions" element={<Competitions />} />
+        <Route path="/library" element={<Library />} />
+        <Route path="/library/:id" element={<BookAssistant />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/english-tips" element={<EnglishTips />} />
