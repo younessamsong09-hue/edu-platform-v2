@@ -50,9 +50,7 @@ export default function About() {
       }}>
         <div style={{ fontSize: '70px', marginBottom: '20px' }}>🎓</div>
         <h1 style={{ fontSize: '40px', marginBottom: '15px' }}>بوابة المعرفة المغربية</h1>
-        <p style={{ fontSize: '18px', opacity: 0.95 }}>
-          أول منصة تعليمية مغربية شاملة
-        </p>
+        <p style={{ fontSize: '18px', opacity: 0.95 }}>أول منصة تعليمية مغربية شاملة</p>
       </div>
 
       <div style={{
@@ -70,9 +68,7 @@ export default function About() {
         }}>
           <div style={{ fontSize: '50px', marginBottom: '15px' }}>🎯</div>
           <h2 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>رؤيتنا</h2>
-          <p style={{ lineHeight: '1.8', color: '#666' }}>
-            أن نصبح المرجع الأول للتعليم الرقمي في المغرب
-          </p>
+          <p style={{ lineHeight: '1.8', color: '#666' }}>أن نصبح المرجع الأول للتعليم الرقمي في المغرب</p>
         </div>
 
         <div style={{
@@ -84,9 +80,7 @@ export default function About() {
         }}>
           <div style={{ fontSize: '50px', marginBottom: '15px' }}>🚀</div>
           <h2 style={{ fontSize: '24px', marginBottom: '15px', color: '#333' }}>رسالتنا</h2>
-          <p style={{ lineHeight: '1.8', color: '#666' }}>
-            تقديم محتوى تعليمي متميز بالدارجة المغربية
-          </p>
+          <p style={{ lineHeight: '1.8', color: '#666' }}>تقديم محتوى تعليمي متميز بالدارجة المغربية</p>
         </div>
       </div>
 
@@ -97,7 +91,7 @@ export default function About() {
         marginBottom: '50px',
         boxShadow: '0 5px 20px rgba(0,0,0,0.05)'
       }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>📊 إحصائيات المنصة</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>إحصائيات المنصة</h2>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
