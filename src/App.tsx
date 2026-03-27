@@ -6,6 +6,7 @@ import ThemeToggle from './components/ThemeToggle'
 import NotificationBell from './components/NotificationBell'
 import UserLevel from './components/UserLevel'
 import Wellness from './components/Wellness'
+import DeepWorkZone from './components/DeepWorkZone'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -32,6 +33,7 @@ import NeighborhoodLeaderboard from './pages/NeighborhoodLeaderboard'
 import PeerHelp from './pages/PeerHelp'
 import CommonMistakes from './pages/CommonMistakes'
 import GradeCalculator from './pages/GradeCalculator'
+import CareerGuidance from './pages/CareerGuidance'
 import './dark-mode.css'
 
 function Navbar() {
@@ -92,6 +94,7 @@ function Navbar() {
       <Link to="/peer-help" style={linkStyle('/peer-help')}>🤝 ساعد زميلك</Link>
       <Link to="/common-mistakes" style={linkStyle('/common-mistakes')}>⚠️ أخطاء شائعة</Link>
       <Link to="/grade-calculator" style={linkStyle('/grade-calculator')}>📊 حساب المعدل</Link>
+      <Link to="/career-guidance" style={linkStyle('/career-guidance')}>🎓 توجيه مدرسي</Link>
       <Link to="/recommendations" style={linkStyle('/recommendations')}>🤖 توصيات</Link>
       <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
       <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
@@ -139,6 +142,7 @@ function AppContent() {
         <Route path="/peer-help" element={<PeerHelp />} />
         <Route path="/common-mistakes" element={<CommonMistakes />} />
         <Route path="/grade-calculator" element={<GradeCalculator />} />
+        <Route path="/career-guidance" element={<CareerGuidance />} />
         <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/english-tips" element={<EnglishTips />} />
         <Route path="/ai-tutor" element={<AITutor />} />
@@ -151,6 +155,7 @@ function AppContent() {
         <Route path="/profile" element={<Profile />} />
       </Routes>
       <Wellness />
+      <DeepWorkZone />
     </BrowserRouter>
   )
 }
