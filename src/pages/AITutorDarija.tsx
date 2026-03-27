@@ -23,7 +23,7 @@ export default function AITutorDarija() {
     checkUser()
     setMessages([{
       id: '1',
-      text: 'سلام عليكم! 🌟 أنا المدرس الذكي ديالكم بالدارجة.\n\nأقدر نعاونك فهاد المواد:\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n🇬🇧 الإنجليزية\n🇫🇷 الفرنسية\n\nشنو حاب تسأل عليه؟',
+      text: 'سلام عليكم! 🌟\n\nأنا المدرس الذكي ديالكم بالدارجة.\n\nأقدر نعاونك فهاد المواد:\n\n📐 **الرياضيات** - حل المعادلات، الدوال، النهايات\n⚛️ **الفيزياء** - قوانين نيوتن، الحركة، الطاقة\n📖 **العربية** - النحو، الصرف، البلاغة\n📝 **نصائح للبكالوريا** - طرق المراجعة\n\nشنو حاب تسأل عليه؟',
       sender: 'ai',
       timestamp: new Date()
     }])
@@ -42,33 +42,25 @@ export default function AITutorDarija() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // دالة النطق
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
       if (isSpeaking) window.speechSynthesis.cancel()
       setIsSpeaking(true)
-      
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = 'ar-MA'
       utterance.rate = 0.85
       utterance.onend = () => setIsSpeaking(false)
-      utterance.onerror = () => setIsSpeaking(false)
       window.speechSynthesis.speak(utterance)
     }
   }
 
-  // دالة الإدخال الصوتي
   const startRecording = () => {
     if ('webkitSpeechRecognition' in window) {
       const recognition = new (window as any).webkitSpeechRecognition()
       recognition.lang = 'ar-MA'
-      recognition.continuous = false
-      recognition.interimResults = false
-      
       recognition.onstart = () => setIsRecording(true)
       recognition.onresult = (event: any) => {
-        const text = event.results[0][0].transcript
-        setInputMessage(text)
+        setInputMessage(event.results[0][0].transcript)
         setIsRecording(false)
       }
       recognition.onerror = () => {
@@ -89,27 +81,87 @@ export default function AITutorDarija() {
     }
   }
 
-  // الردود بالدارجة
   const getResponse = (question: string): string => {
     const q = question.toLowerCase()
     
-    if (q.includes('رياضيات') || q.includes('معادلة')) {
-      return `📐 **الرياضيات**:\n\nهيا نحلوا مع بعض:\n\nمثال: 2س + 5 = 15\n1. نحيدو 5 من الطرفين: 2س = 10\n2. نقسمو على 2: س = 5\n\nعندك معادلة معينة؟ دوزها ليا!`
+    if (q.includes('رياضيات') || q.includes('معادلة') || q.includes('حل')) {
+      return `📐 **الرياضيات بالدارجة**\n\n` +
+        `**مثال على حل معادلة:**\n\n` +
+        `المعادلة: 2س + 5 = 15\n\n` +
+        `**الخطوة 1:** نحيدو 5 من الطرفين\n` +
+        `2س = 15 - 5\n` +
+        `2س = 10\n\n` +
+        `**الخطوة 2:** نقسمو على 2\n` +
+        `س = 10 ÷ 2\n\n` +
+        `**النتيجة:** س = 5 ✅\n\n` +
+        `عندك معادلة معينة؟ دوزها ليا نحلهالك!`
     }
     
-    if (q.includes('فيزياء') || q.includes('نيوتن')) {
-      return `⚛️ **الفيزياء**:\n\nقوانين نيوتن:\n\n1️⃣ الجسم الساكن يبقى ساكن\n2️⃣ القوة = الكتلة × التسارع\n3️⃣ لكل فعل رد فعل مساوي ليه\n\nواش بغيتي شرح لواحد منهم؟`
+    if (q.includes('فيزياء') || q.includes('نيوتن') || q.includes('حركة')) {
+      return `⚛️ **الفيزياء بالدارجة**\n\n` +
+        `**قوانين نيوتن للحركة:**\n\n` +
+        `**1️⃣ القانون الأول (القصور الذاتي):**\n` +
+        `"الجسم الساكن يبقى ساكن، والجسم المتحرك يبقى متحرك، إلا إذا تأثر بقوة خارجية"\n\n` +
+        `**2️⃣ القانون الثاني (التسارع):**\n` +
+        `القوة = الكتلة × التسارع\n` +
+        `F = m × a\n\n` +
+        `**3️⃣ القانون الثالث (الفعل ورد الفعل):**\n` +
+        `"لكل فعل رد فعل مساوي ليه فالمقدار ومعاكس فالاتجاه"\n\n` +
+        `واش بغيتي شرح لواحد منهم بالتفصيل؟`
     }
     
-    if (q.includes('عربية') || q.includes('نحو')) {
-      return `📖 **العربية**:\n\nأقسام الكلمة:\n🔹 الاسم: كتاب، شجرة\n🔹 الفعل: كتب، يكتب\n🔹 الحرف: في، على، من\n\nبغيتي نمثلك بجملة؟`
+    if (q.includes('عربية') || q.includes('نحو') || q.includes('قواعد')) {
+      return `📖 **اللغة العربية بالدارجة**\n\n` +
+        `**أقسام الكلمة:**\n\n` +
+        `🔹 **الاسم**: كلمة كاتعبر على معنى بلا زمن\n` +
+        `مثال: كتاب، شجرة، محمد، مكة\n\n` +
+        `🔹 **الفعل**: كلمة كاتعبر على حدث مقترن بزمن\n` +
+        `- الماضي: كتب، قرأ\n` +
+        `- المضارع: يكتب، يقرأ\n` +
+        `- الأمر: اكتب، اقرأ\n\n` +
+        `🔹 **الحرف**: كلمة ماكاتعبرش على معنى فحد ذاتها\n` +
+        `مثال: في، على، من، إلى\n\n` +
+        `بغيتي نمثلك بجملة كاملة؟`
     }
     
-    if (q.includes('امتحان') || q.includes('بكالوريا')) {
-      return `📝 **نصائح للبكالوريا**:\n\n1. نظم وقتك\n2. راجع بانتظام\n3. حل تمارين السنوات السابقة\n4. نام مليح\n5. كل صحي\n\nبغيتي نصائح لمادة معينة؟`
+    if (q.includes('امتحان') || q.includes('بكالوريا') || q.includes('نصائح') || q.includes('مراجعة')) {
+      return `📝 **نصائح للبكالوريا بالدارجة**\n\n` +
+        `**قبل الامتحان:**\n` +
+        `1️⃣ **نظم وقتك**: قسم المواد على الأيام\n` +
+        `2️⃣ **راجع بانتظام**: كل يوم شوية أحسن من مرة فالشهر\n` +
+        `3️⃣ **حل تمارين**: اكثر من حل التمارين ديال السنوات السابقة\n` +
+        `4️⃣ **نام مليح**: 8 ساعات قبل الامتحان ضرورية\n` +
+        `5️⃣ **كل صحي**: الفطور مهم باش تركز مليح\n\n` +
+        `**فالامتحان:**\n` +
+        `• اقرا الأسئلة باه\n` +
+        `• قسم الوقت بين الأسئلة\n` +
+        `• ابدا بالسهل ثم الصعب\n` +
+        `• راجع الجواب قبل ما تسلم\n\n` +
+        `بغيتي نصائح لمادة معينة؟`
     }
     
-    return `🤖 **المدرس الذكي**:\n\nأهلا بيك! تقدر تسألني على:\n\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n📝 نصائح للبكالوريا\n\nشنو حاب تسأل عليه؟`
+    if (q.includes('شكرا') || q.includes('merci')) {
+      return `العفو! 🙏\n\nأنا هنا باش نعاونك فكل وقت.\n\nواش عندك سؤال آخر؟`
+    }
+    
+    return `🤖 **المدرس الذكي بالدارجة**\n\n` +
+      `أهلا بيك! تقدر تسألني على:\n\n` +
+      `📐 **الرياضيات**\n` +
+      `• حل المعادلات (مثال: حل المعادلة 2س+5=15)\n` +
+      `• شرح الدوال\n` +
+      `• شرح النهايات\n\n` +
+      `⚛️ **الفيزياء**\n` +
+      `• شرح قوانين نيوتن\n` +
+      `• شرح الحركة والتسارع\n` +
+      `• شرح الطاقة\n\n` +
+      `📖 **العربية**\n` +
+      `• شرح أقسام الكلمة\n` +
+      `• شرح المبتدأ والخبر\n` +
+      `• شرح الأفعال\n\n` +
+      `📝 **نصائح للبكالوريا**\n` +
+      `• كيفاش نقرا للبكالوريا\n` +
+      `• نصائح ليلة الامتحان\n\n` +
+      `شنو حاب تسأل عليه؟`
   }
 
   const sendMessage = async () => {
@@ -149,7 +201,7 @@ export default function AITutorDarija() {
   const clearChat = () => {
     setMessages([{
       id: Date.now().toString(),
-      text: 'سلام عليكم! أنا المدرس الذكي ديالكم. شنو حاب تسأل عليه؟',
+      text: 'سلام عليكم! 🌟\n\nأنا المدرس الذكي ديالكم.\n\nشنو حاب تسأل عليه؟',
       sender: 'ai',
       timestamp: new Date()
     }])
@@ -167,33 +219,31 @@ export default function AITutorDarija() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <div style={{ fontSize: '40px' }}>🤖</div>
-            <h2 style={{ fontSize: '20px', margin: '5px 0' }}>المدرس الذكي بالدارجة</h2>
-            <p style={{ fontSize: '12px', opacity: 0.9 }}>اسألني بالدارجة! كنفهم العربية والفرنسية والإنجليزية</p>
+            <div style={{ fontSize: '48px' }}>🤖</div>
+            <h1 style={{ fontSize: '24px', margin: '5px 0' }}>المدرس الذكي بالدارجة</h1>
+            <p style={{ fontSize: '13px', opacity: 0.9 }}>اسألني بالدارجة! كنفهم العربية والفرنسية والإنجليزية</p>
           </div>
-          <div>
-            <button onClick={clearChat} style={{
-              background: 'rgba(255,255,255,0.2)',
-              border: 'none',
-              padding: '8px 15px',
-              borderRadius: '20px',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '12px'
-            }}>
-              🗑️ مسح
-            </button>
-          </div>
+          <button onClick={clearChat} style={{
+            background: 'rgba(255,255,255,0.2)',
+            border: 'none',
+            padding: '8px 15px',
+            borderRadius: '20px',
+            color: 'white',
+            cursor: 'pointer'
+          }}>
+            🗑️ مسح
+          </button>
         </div>
-        <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>📐 حل معادلات</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>⚛️ فيزياء</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>📖 عربية</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>🎤 صوتي</span>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>📐 حل معادلات</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>⚛️ فيزياء</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>📖 عربية</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>📝 نصائح بكالوريا</span>
+          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', fontSize: '12px' }}>🎤 صوتي</span>
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages Area */}
       <div style={{
         flex: 1,
         overflowY: 'auto',
@@ -206,22 +256,23 @@ export default function AITutorDarija() {
           <div key={msg.id} style={{
             display: 'flex',
             justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-            marginBottom: '15px'
+            marginBottom: '20px'
           }}>
             <div style={{
-              maxWidth: '80%',
-              padding: '12px 16px',
+              maxWidth: '85%',
+              padding: '15px 20px',
               borderRadius: '20px',
               background: msg.sender === 'user' ? '#667eea' : 'white',
               color: msg.sender === 'user' ? 'white' : '#333',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              whiteSpace: 'pre-wrap'
             }}>
-              <div style={{ fontSize: '14px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+              <div style={{ fontSize: '15px', lineHeight: '1.6' }}>
                 {msg.text}
               </div>
               <div style={{
                 fontSize: '10px',
-                marginTop: '5px',
+                marginTop: '8px',
                 color: msg.sender === 'user' ? 'rgba(255,255,255,0.7)' : '#999',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -232,9 +283,10 @@ export default function AITutorDarija() {
                   <button onClick={() => speak(msg.text)} style={{
                     background: 'none',
                     border: 'none',
-                    fontSize: '12px',
+                    fontSize: '14px',
                     cursor: 'pointer',
-                    color: msg.sender === 'user' ? 'white' : '#667eea'
+                    color: msg.sender === 'user' ? 'white' : '#667eea',
+                    marginLeft: '10px'
                   }}>
                     🔊
                   </button>
@@ -244,17 +296,17 @@ export default function AITutorDarija() {
           </div>
         ))}
         {isLoading && (
-          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <div style={{ background: 'white', padding: '12px', borderRadius: '20px' }}>
-              <span style={{ animation: 'pulse 1s infinite' }}>●</span>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }}>
+            <div style={{ background: 'white', padding: '12px 20px', borderRadius: '20px' }}>
+              <span style={{ animation: 'pulse 1s infinite' }}>✍️</span> جاري الكتابة...
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div style={{ display: 'flex', gap: '10px' }}>
+      {/* Input Area */}
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
         <textarea
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
@@ -262,13 +314,14 @@ export default function AITutorDarija() {
           placeholder="اكتب سؤالك بالدارجة... أو استخدم الميكروفون 🎤"
           style={{
             flex: 1,
-            padding: '12px',
-            borderRadius: '12px',
+            padding: '12px 15px',
+            borderRadius: '20px',
             border: '1px solid #ddd',
             resize: 'none',
             fontSize: '14px',
             minHeight: '50px',
-            fontFamily: 'inherit'
+            fontFamily: 'inherit',
+            background: 'white'
           }}
           rows={2}
         />
@@ -279,10 +332,13 @@ export default function AITutorDarija() {
             background: isRecording ? '#ef4444' : '#10b981',
             color: 'white',
             border: 'none',
-            borderRadius: '12px',
+            borderRadius: '50%',
             cursor: 'pointer',
-            width: '50px'
+            width: '50px',
+            height: '50px',
+            fontSize: '20px'
           }}
+          title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
         >
           {isRecording ? '⏹️' : '🎤'}
         </button>
@@ -290,12 +346,13 @@ export default function AITutorDarija() {
           onClick={sendMessage}
           disabled={isLoading || !inputMessage.trim()}
           style={{
-            padding: '12px 20px',
+            padding: '12px 25px',
             background: !inputMessage.trim() ? '#ccc' : '#667eea',
             color: 'white',
             border: 'none',
-            borderRadius: '12px',
+            borderRadius: '25px',
             cursor: !inputMessage.trim() ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
             fontWeight: 'bold'
           }}
         >
@@ -307,11 +364,11 @@ export default function AITutorDarija() {
         <button style={{
           marginTop: '15px',
           width: '100%',
-          padding: '10px',
+          padding: '12px',
           background: '#f3f4f6',
           color: '#333',
           border: 'none',
-          borderRadius: '10px',
+          borderRadius: '12px',
           cursor: 'pointer'
         }}>
           ← العودة إلى الدروس
@@ -325,9 +382,10 @@ export default function AITutorDarija() {
           right: '20px',
           background: '#667eea',
           color: 'white',
-          padding: '8px 15px',
+          padding: '8px 16px',
           borderRadius: '30px',
-          fontSize: '12px'
+          fontSize: '12px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
         }}>
           🔊 جاري النطق...
         </div>
@@ -335,7 +393,7 @@ export default function AITutorDarija() {
 
       <style>{`
         @keyframes pulse {
-          0%, 100% { opacity: 0.3; }
+          0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
         }
       `}</style>
