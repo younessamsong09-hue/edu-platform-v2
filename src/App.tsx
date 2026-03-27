@@ -38,6 +38,9 @@ import CommonMistakes from './pages/CommonMistakes'
 import GradeCalculator from './pages/GradeCalculator'
 import CareerGuidance from './pages/CareerGuidance'
 import VisualMistakes from './pages/VisualMistakes'
+import Dashboard from './pages/Dashboard'
+import HelpCenter from './pages/HelpCenter'
+import MyAchievements from './pages/MyAchievements'
 import './dark-mode.css'
 import './mobile.css'
 
@@ -86,16 +89,21 @@ function DesktopNavbar() {
       alignItems: 'center'
     }}>
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
+      <Link to="/dashboard" style={linkStyle('/dashboard')}>📊 لوحة التحكم</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
       <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
       <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
       <Link to="/grade-calculator" style={linkStyle('/grade-calculator')}>📊 المعدل</Link>
+      <Link to="/career-guidance" style={linkStyle('/career-guidance')}>🎓 توجيه</Link>
       <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
-      <Link to="/about" style={linkStyle('/about')}>📖 عن المنصة</Link>
+      <Link to="/help" style={linkStyle('/help')}>❓ مساعدة</Link>
       {user ? (
-        <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
+        <>
+          <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
+          <Link to="/achievements" style={linkStyle('/achievements')}>🏅 إنجازاتي</Link>
+        </>
       ) : (
         <Link to="/login" style={linkStyle('/login')}>🔐 دخول</Link>
       )}
@@ -112,6 +120,7 @@ function AppContent() {
       <DesktopNavbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<SubjectDetail />} />
         <Route path="/courses/lesson/:id" element={<LessonDetail />} />
@@ -134,6 +143,8 @@ function AppContent() {
         <Route path="/ai-tutor" element={<AITutor />} />
         <Route path="/ai-darija" element={<AITutorDarija />} />
         <Route path="/about" element={<About />} />
+        <Route path="/help" element={<HelpCenter />} />
+        <Route path="/achievements" element={<MyAchievements />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-stats" element={<AdminStats />} />
