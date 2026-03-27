@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { addLessonPoints } from '../lib/gamification'
+import Comments from '../components/Comments'
 
 interface Lesson {
   id: number
@@ -209,7 +210,6 @@ export default function LessonDetail() {
     }
   }
 
-  // دالة المشاركة
   const shareLesson = async () => {
     const shareData = {
       title: lesson?.title_ar,
@@ -228,13 +228,11 @@ export default function LessonDetail() {
     }
   }
 
-  // دالة نسخ الرابط
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
     alert('📋 تم نسخ رابط الدرس! يمكنك مشاركته مع أصدقائك')
   }
 
-  // دالة الطباعة
   const printLesson = () => {
     const printWindow = window.open('', '_blank', 'width=800,height=600')
     if (!printWindow) return
@@ -350,7 +348,6 @@ export default function LessonDetail() {
       </Link>
       
       <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '10px', flexWrap: 'wrap' }}>
-        {/* زر المشاركة */}
         <button
           onClick={shareLesson}
           style={{
@@ -366,7 +363,6 @@ export default function LessonDetail() {
           📤
         </button>
         
-        {/* زر الطباعة */}
         <button
           onClick={printLesson}
           style={{
@@ -382,7 +378,6 @@ export default function LessonDetail() {
           🖨️
         </button>
         
-        {/* زر المفضلة */}
         <button
           onClick={toggleFavorite}
           style={{
@@ -397,7 +392,6 @@ export default function LessonDetail() {
           {isFavorite ? '⭐' : '☆'}
         </button>
         
-        {/* زر إكمال الدرس */}
         {!isCompleted && (
           <button
             onClick={markComplete}
@@ -534,6 +528,9 @@ export default function LessonDetail() {
           📝 حل التمارين {exercisesCount > 0 ? `(${exercisesCount} تمرين)` : ''}
         </button>
       </Link>
+
+      {/* قسم التعليقات */}
+      <Comments lessonId={parseInt(id as string)} />
     </div>
   )
 }
