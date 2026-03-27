@@ -9,6 +9,7 @@ import Wellness from './components/Wellness'
 import DeepWorkZone from './components/DeepWorkZone'
 import StudyRadar from './components/StudyRadar'
 import SmartNavigator from './components/SmartNavigator'
+import MobileMenu from './components/MobileMenu'
 import HomePage from './pages/HomePage'
 import CoursesPage from './pages/CoursesPage'
 import SubjectDetail from './pages/SubjectDetail'
@@ -38,8 +39,9 @@ import GradeCalculator from './pages/GradeCalculator'
 import CareerGuidance from './pages/CareerGuidance'
 import VisualMistakes from './pages/VisualMistakes'
 import './dark-mode.css'
+import './mobile.css'
 
-function Navbar() {
+function DesktopNavbar() {
   const location = useLocation()
   const [user, setUser] = useState<any>(null)
   const { theme } = useTheme()
@@ -60,20 +62,6 @@ function Navbar() {
   
   const isActive = (path: string) => location.pathname === path
   
-  const navStyle = {
-    background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
-    backdropFilter: 'blur(10px)',
-    padding: '8px 10px',
-    display: 'flex',
-    gap: '6px',
-    justifyContent: 'center',
-    position: 'sticky' as const,
-    top: 0,
-    zIndex: 1000,
-    flexWrap: 'wrap' as const,
-    alignItems: 'center'
-  }
-  
   const linkStyle = (path: string) => ({
     color: isActive(path) ? '#667eea' : (theme === 'dark' ? '#f3f4f6' : 'white'),
     textDecoration: 'none',
@@ -84,37 +72,30 @@ function Navbar() {
   })
   
   return (
-    <nav style={navStyle}>
+    <nav style={{
+      background: theme === 'dark' ? '#111827' : 'rgba(31, 41, 55, 0.95)',
+      backdropFilter: 'blur(10px)',
+      padding: '8px 10px',
+      display: 'flex',
+      gap: '6px',
+      justifyContent: 'center',
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000,
+      flexWrap: 'wrap',
+      alignItems: 'center'
+    }}>
       <Link to="/" style={linkStyle('/')}>🏠 الرئيسية</Link>
       <Link to="/courses" style={linkStyle('/courses')}>📚 الدروس</Link>
       <Link to="/exams" style={linkStyle('/exams')}>📝 الامتحانات</Link>
-      <Link to="/national-exams" style={linkStyle('/national-exams')}>🎯 بكالوريا</Link>
       <Link to="/games" style={linkStyle('/games')}>🎮 ألعاب</Link>
       <Link to="/competitions" style={linkStyle('/competitions')}>🏆 مسابقات</Link>
-      <Link to="/library" style={linkStyle('/library')}>📚 المكتبة</Link>
       <Link to="/leaderboard" style={linkStyle('/leaderboard')}>🏅 التصنيف</Link>
-      <Link to="/neighborhood-leaderboard" style={linkStyle('/neighborhood-leaderboard')}>🏘️ أحياء</Link>
-      <Link to="/peer-help" style={linkStyle('/peer-help')}>🤝 ساعد زميلك</Link>
-      <Link to="/common-mistakes" style={linkStyle('/common-mistakes')}>⚠️ أخطاء شائعة</Link>
-      <Link to="/visual-mistakes" style={linkStyle('/visual-mistakes')}>🔍 بحث بالصور</Link>
-      <Link to="/grade-calculator" style={linkStyle('/grade-calculator')}>📊 حساب المعدل</Link>
-      <Link to="/career-guidance" style={linkStyle('/career-guidance')}>🎓 توجيه مدرسي</Link>
-      <Link to="/recommendations" style={linkStyle('/recommendations')}>🤖 توصيات</Link>
-      <Link to="/ai-tutor" style={linkStyle('/ai-tutor')}>🤖 مدرس AI</Link>
+      <Link to="/grade-calculator" style={linkStyle('/grade-calculator')}>📊 المعدل</Link>
       <Link to="/ai-darija" style={linkStyle('/ai-darija')}>🗣️ مدرس بالدارجة</Link>
-      <Link to="/english-tips" style={linkStyle('/english-tips')}>💡 نصائح</Link>
       <Link to="/about" style={linkStyle('/about')}>📖 عن المنصة</Link>
       {user ? (
-        <>
-          <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
-          {user.email === 'admin@example.com' && (
-            <>
-              <Link to="/admin" style={linkStyle('/admin')}>⚙️ إضافة درس</Link>
-              <Link to="/admin-dashboard" style={linkStyle('/admin-dashboard')}>📋 لوحة التحكم</Link>
-              <Link to="/admin-stats" style={linkStyle('/admin-stats')}>📊 الإحصائيات</Link>
-            </>
-          )}
-        </>
+        <Link to="/profile" style={linkStyle('/profile')}>👤 ملفي</Link>
       ) : (
         <Link to="/login" style={linkStyle('/login')}>🔐 دخول</Link>
       )}
@@ -128,7 +109,7 @@ function Navbar() {
 function AppContent() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <DesktopNavbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CoursesPage />} />
@@ -162,6 +143,7 @@ function AppContent() {
       <Wellness />
       <DeepWorkZone />
       <StudyRadar />
+      <MobileMenu />
     </BrowserRouter>
   )
 }

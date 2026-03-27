@@ -1,0 +1,21 @@
+/* إخفاء الشريط العلوي للهواتف */
+@media (max-width: 768px) {
+  nav {
+    display: none !important;
+  }
+}
+
+/* تحسينات للهواتف */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px;
+  }
+  
+  h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  .container {
+    padding: 0 12px !important;
+  }
+}
