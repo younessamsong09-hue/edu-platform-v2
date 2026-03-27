@@ -18,7 +18,6 @@ export default function AITutorDarija() {
 
   useEffect(() => {
     checkUser()
-    // رسالة ترحيب بالدارجة
     setMessages([{
       id: '1',
       text: 'سلام عليكم! 🌟 أنا المدرس الذكي ديالكم. كيفاش نقدر نعاونك فهاد النهار؟\n\nأقدر نعاونك فهاد المواد:\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n🇬🇧 الإنجليزية\n🇫🇷 الفرنسية\n\nشحال حاب تبدأ؟',
@@ -40,52 +39,34 @@ export default function AITutorDarija() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // الردود بالدارجة المغربية
   const getDarijaResponse = async (question: string): Promise<string> => {
     const q = question.toLowerCase()
     
-    // ردود على الرياضيات
-    if (q.includes('رياضيات') || q.includes('جبر') || q.includes('معادلة') || q.includes('حساب')) {
-      return `📐 **الرياضيات بالدارجة**:\n\nسؤال ديالك: ${question}\n\nهيا نشوفوه مع بعض:\n\n1. بغيتي نحل المعادلة؟ دوز السؤال ليها ونحلهالك خطوة بخطوة.\n2. مثال: 2س + 5 = 15\n   - نحيدو 5 من الطرفين: 2س = 10\n   - نقسمو على 2: س = 5\n\nعندك معادلة معينة؟ دوزها ليا ونحلهالك!`
+    if (q.includes('رياضيات') || q.includes('جبر') || q.includes('معادلة')) {
+      return `📐 **الرياضيات بالدارجة**:\n\nسؤال ديالك: ${question}\n\nمثال: 2س + 5 = 15\n- نحيدو 5 من الطرفين: 2س = 10\n- نقسمو على 2: س = 5\n\nعندك معادلة معينة؟ دوزها ليا ونحلهالك!`
     }
     
-    // ردود على الفيزياء
-    if (q.includes('فيزياء') || q.includes('حركة') || q.includes('قوة') || q.includes('نيوتن')) {
-      return `⚛️ **الفيزياء بالدارجة**:\n\nسؤال ديالك: ${question}\n\nقوانين نيوتن الثلاثة:\n\n1️⃣ **القانون الأول (قانون القصور الذاتي)**:\n"الجسم الساكن يبقى ساكن، والجسم المتحرك يبقى متحرك، إلا إذا تأثر بقوة خارجية"\n\n2️⃣ **القانون الثاني (قانون التسارع)**:\n"التسارع = القوة ÷ الكتلة" (F = m × a)\n\n3️⃣ **القانون الثالث (الفعل ورد الفعل)**:\n"لكل فعل رد فعل مساوي ليه فالمقدار ومعاكس فالاتجاه"\n\nواش بغيتي شرح لواحد منهم بالتفصيل؟`
+    if (q.includes('فيزياء') || q.includes('حركة') || q.includes('قوة')) {
+      return `⚛️ **الفيزياء بالدارجة**:\n\nقوانين نيوتن:\n\n1️⃣ القانون الأول: الجسم الساكن يبقى ساكن، والجسم المتحرك يبقى متحرك\n2️⃣ القانون الثاني: القوة = الكتلة × التسارع\n3️⃣ القانون الثالث: لكل فعل رد فعل مساوي ليه فالمقدار ومعاكس فالاتجاه`
     }
     
-    // ردود على العربية
-    if (q.includes('عربية') || q.includes('نحو') || q.includes('قواعد') || q.includes('صرف')) {
-      return `📖 **اللغة العربية بالدارجة**:\n\nسؤال ديالك: ${question}\n\nأقسام الكلمة:\n\n🔹 **الاسم**: كلمة كاتعبر على معنى بلا زمن\n   مثال: كتاب، شجرة، محمد\n\n🔹 **الفعل**: كلمة كاتعبر على حدث مقترن بزمن\n   مثال: كتب، يكتب، اكتب\n\n🔹 **الحرف**: كلمة ماكاتعبرش على معنى فحد ذاتها\n   مثال: في، على، من\n\nبغيتي نمثلك بجملة؟`
+    if (q.includes('عربية') || q.includes('نحو')) {
+      return `📖 **اللغة العربية بالدارجة**:\n\nأقسام الكلمة:\n🔹 الاسم: كتاب، شجرة\n🔹 الفعل: كتب، يكتب\n🔹 الحرف: في، على، من`
     }
     
-    // ردود على الإنجليزية
-    if (q.includes('انجليزي') || q.includes('english') || q.includes('grammar') || q.includes('ingles')) {
-      return `🇬🇧 **English with Darija**:\n\nYour question: ${question}\n\n**Present Simple (المضارع البسيط)**:\n\nI/You/We/They + verb\nHe/She/It + verb + s/es\n\n**Examples:**\n- I **play** football every day. (أنا كنلعب الكورة كل نهار)\n- She **plays** tennis on weekends. (هي كتلعب التنس فصّباط)\n\n**Negation (النفي)**:\n- I **don't** like coffee.\n- She **doesn't** like tea.\n\nDo you want more examples?`
+    if (q.includes('انجليزي') || q.includes('english')) {
+      return `🇬🇧 **English with Darija**:\n\nPresent Simple:\nI/You/We/They + verb\nHe/She/It + verb + s\n\nExample: I play football. She plays tennis.`
     }
     
-    // ردود على الفرنسية
-    if (q.includes('فرنسي') || q.includes('french') || q.includes('francais') || q.includes('française')) {
-      return `🇫🇷 **Français avec Darija**:\n\nVotre question: ${question}\n\n**Les salutations (التحيات)**:\n\n- **Bonjour** → صباح الخير\n- **Bonsoir** → مساء الخير\n- **Salut** → مرحبا (غير رسمي)\n- **Comment ça va ?** → كيفاش حالك؟\n- **Ça va bien, merci** → لاباس، شكراً\n- **Au revoir** → مع السلامة\n\n**Exemple:**\nA: Bonjour ! Comment ça va ?\nB: Ça va bien, merci. Et toi ?\nA: Ça va très bien, merci.\n\nVous voulez apprendre plus ?`
+    if (q.includes('فرنسي') || q.includes('french')) {
+      return `🇫🇷 **Français avec Darija**:\n\nBonjour = صباح الخير\nBonsoir = مساء الخير\nComment ça va? = كيفاش حالك؟\nAu revoir = مع السلامة`
     }
     
-    // ردود على الدارجة فقط
-    if (q.includes('شنو') || q.includes('كيفاش') || q.includes('واش') || q.includes('علاش') || q.includes('فاش')) {
-      return `🎯 **بالدارجة المغربية**:\n\nسؤال ديالك: ${question}\n\nأهلا بيك! أنا هنا باش نعاونك.\n\nتقدر تسألني على:\n- الرياضيات (المعادلات، الجبر، الهندسة)\n- الفيزياء (الحركة، القوانين، الكهرباء)\n- العربية (النحو، الصرف، البلاغة)\n- الإنجليزية (القواعد، المحادثة)\n- الفرنسية (التحيات، القواعد)\n\nواش بغيتي نبدأ بوحدة منهم؟`
+    if (q.includes('امتحان') || q.includes('بكالوريا')) {
+      return `📝 **نصائح للبكالوريا**:\n\n1. نظم وقتك\n2. راجع بانتظام\n3. حل تمارين السنوات السابقة\n4. نام مليح قبل الامتحان\n5. كل صحي`
     }
     
-    // ردود على نصائح الامتحانات
-    if (q.includes('امتحان') || q.includes('بكالوريا') || q.includes('bac') || q.includes('مراجعة') || q.includes('نصيحة')) {
-      return `📝 **نصائح للبكالوريا بالدارجة**:\n\nقبل الامتحان:\n1. **نظم وقتك**: قسم المواد بين النهار.\n2. **راجع بانتظام**: كل يوم شوية.\n3. **حل تمارين**: السنوات السابقة.\n4. **نام مليح**: 8 ساعات قبل الامتحان.\n5. **كل صحي**: الفطور مهم.\n\nفالامتحان:\n1. **اقرأ الأسئلة** باه.\n2. **قسم الوقت** بين الأسئلة.\n3. **ابدأ بالسهل** ثم الصعب.\n4. **راجع الجواب** قبل ما تسلم.\n\nبغيتي نصائح لمادة معينة؟`
-    }
-    
-    // ردود على التحفيز
-    if (q.includes('مليحة') || q.includes('شجع') || q.includes('تحفيز') || q.includes('مفيد')) {
-      return `💪 **تحفيز بالدارجة**:\n\nسمعني، أنت قادر! كل شي كاين فهاد المنصة باش تعاونك.\n\n- دروس فيديو واضحة\n- تمارين تفاعلية\n- امتحانات وطنية مع التصحيح\n- مدرس AI فالدارجة\n\nشد معاك، بدا دلوقتي، والنجاح جا فالطريق!\n\nشنو الشي لي حاب تبدأ بيه؟`
-    }
-    
-    // رد عام بالدارجة
-    return `🤖 **المدرس الذكي بالدارجة**:\n\nأهلا بيك! أنا هنا باش نعاونك.\n\nتقدر تسألني على:\n\n📐 **الرياضيات**\n- "حل المعادلة 2س + 5 = 15"\n- "شرح النهايات"\n\n⚛️ **الفيزياء**\n- "شرح قوانين نيوتن"\n- "شنو هو التسارع؟"\n\n📖 **العربية**\n- "شرح أقسام الكلمة"\n- "شنو هو المبتدأ والخبر؟"\n\n🇬🇧 **الإنجليزية**\n- "شرح المضارع البسيط"\n- "الفرق بين much و many"\n\n🇫🇷 **الفرنسية**\n- "تصريف فعل être"\n- "كيفاش نقول صباح الخير؟"\n\n📝 **نصائح للبكالوريا**\n- "كيفاش نقرا للبكالوريا"\n- "نصائح ليلة الامتحان"\n\nشنو حاب تسأل عليه؟`}
+    return `🤖 **المدرس الذكي بالدارجة**:\n\nأهلا بيك! تقدر تسألني على:\n\n📐 الرياضيات\n⚛️ الفيزياء\n📖 العربية\n🇬🇧 الإنجليزية\n🇫🇷 الفرنسية\n📝 نصائح للبكالوريا\n\nشنو حاب تسأل عليه؟`
   }
 
   const sendMessage = async () => {
@@ -103,7 +84,6 @@ export default function AITutorDarija() {
 
     setTimeout(async () => {
       const aiResponse = await getDarijaResponse(inputMessage)
-      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: aiResponse,
@@ -124,7 +104,6 @@ export default function AITutorDarija() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px', height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #667eea, #764ba2)',
         borderRadius: '20px',
@@ -142,11 +121,9 @@ export default function AITutorDarija() {
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>📖 عربية</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>🇬🇧 إنجليزية</span>
           <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>🇫🇷 فرنسية</span>
-          <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px', fontSize: '11px' }}>💪 تحفيز</span>
         </div>
       </div>
 
-      {/* منطقة الدردشة */}
       <div style={{
         flex: 1,
         overflowY: 'auto',
@@ -156,14 +133,11 @@ export default function AITutorDarija() {
         marginBottom: '20px'
       }}>
         {messages.map((message) => (
-          <div
-            key={message.id}
-            style={{
-              display: 'flex',
-              justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
-              marginBottom: '15px'
-            }}
-          >
+          <div key={message.id} style={{
+            display: 'flex',
+            justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+            marginBottom: '15px'
+          }}>
             <div style={{
               maxWidth: '85%',
               padding: '12px 16px',
@@ -206,13 +180,12 @@ export default function AITutorDarija() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* منطقة الإدخال */}
       <div style={{ display: 'flex', gap: '10px' }}>
         <textarea
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="اكتب سؤالك بالدارجة... مثلاً: شرحلي المعادلات، شنو هو قانون نيوتن، كيفاش نقرا للبكالوريا..."
+          placeholder="اكتب سؤالك بالدارجة... مثلاً: شرحلي المعادلات، شنو هو قانون نيوتن"
           style={{
             flex: 1,
             padding: '12px',
@@ -243,34 +216,20 @@ export default function AITutorDarija() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-        <Link to="/courses" style={{ flex: 1 }}>
-          <button style={{
-            width: '100%',
-            padding: '10px',
-            background: '#f3f4f6',
-            color: '#333',
-            border: 'none',
-            borderRadius: '10px',
-            cursor: 'pointer'
-          }}>
-            ← العودة للدروس
-          </button>
-        </Link>
-        <Link to="/ai-tutor" style={{ flex: 1 }}>
-          <button style={{
-            width: '100%',
-            padding: '10px',
-            background: '#f3f4f6',
-            color: '#333',
-            border: 'none',
-            borderRadius: '10px',
-            cursor: 'pointer'
-          }}>
-            🤖 المدرس العادي
-          </button>
-        </Link>
-      </div>
+      <Link to="/courses">
+        <button style={{
+          marginTop: '20px',
+          width: '100%',
+          padding: '12px',
+          background: '#f3f4f6',
+          color: '#333',
+          border: 'none',
+          borderRadius: '12px',
+          cursor: 'pointer'
+        }}>
+          ← العودة إلى الدروس
+        </button>
+      </Link>
 
       <style>{`
         @keyframes blink {
