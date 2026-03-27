@@ -4,25 +4,74 @@
   box-sizing: border-box;
 }
 
+/* ============================================
+   خطوط عربية جميلة للموقع
+   ============================================ */
+
+/* استيراد الخطوط من Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap');
+
+/* تطبيق الخطوط العامة */
+* {
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', sans-serif;
+}
+
 body {
-  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Cairo', 'Tajawal', sans-serif;
   direction: rtl;
   background: #f3f4f6;
 }
 
+/* العناوين الرئيسية */
+h1 {
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: 2.5rem;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* النصوص العادية */
+p {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  line-height: 1.8;
+  font-weight: 400;
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+/* الروابط */
 a {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  font-weight: 500;
   text-decoration: none;
+  transition: color 0.3s;
 }
 
+/* الأزرار */
 button {
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
+/* حقول الإدخال */
+input, textarea, select {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
 }
 
 /* تنسيق شريط التمرير */
@@ -32,6 +81,7 @@ button:hover {
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -50,26 +100,14 @@ button:hover {
   }
   
   h1 {
-    font-size: 32px !important;
+    font-size: 1.8rem;
   }
-}
-/* متغيرات الألوان */
-:root {
-  --bg-light: #f3f4f6;
-  --bg-dark: #1f2937;
-  --text-light: #1f2937;
-  --text-dark: #f3f4f6;
-}
-
-body {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* تحسينات للوضع المظلم */
-.dark .bg-gradient-to-b {
-  background: linear-gradient(135deg, #1f2937, #111827) !important;
-}
-
-.dark .bg-gradient-to-r {
-  background: linear-gradient(135deg, #374151, #1f2937) !important;
+  
+  h2 {
+    font-size: 1.4rem;
+  }
+  
+  h3 {
+    font-size: 1.2rem;
+  }
 }

@@ -68,3 +68,25 @@
 .dark footer {
   background-color: #111827 !important;
 }
+
+/* تحسين الخطوط في الوضع المظلم */
+.dark body {
+  font-weight: 400;
+}
+
+.dark h1, .dark h2, .dark h3 {
+  color: #f3f4f6;
+}
+
+.dark p {
+  color: #e5e7eb;
+}
+
+/* تحسين شريط التمرير في الوضع المظلم */
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4f46e5;
+}
