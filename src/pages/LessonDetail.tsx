@@ -24,7 +24,6 @@ export default function LessonDetail() {
   const [user, setUser] = useState<any>(null)
   const [hasRecordedView, setHasRecordedView] = useState(false)
   
-  // نظام التقييم
   const [userRating, setUserRating] = useState<number | null>(null)
   const [averageRating, setAverageRating] = useState(0)
   const [ratingCount, setRatingCount] = useState(0)
@@ -37,7 +36,6 @@ export default function LessonDetail() {
     fetchRatings()
   }, [id])
 
-  // تسجيل مشاهدة عند تحميل الصفحة
   useEffect(() => {
     if (lesson && !hasRecordedView) {
       recordView()
@@ -203,13 +201,97 @@ export default function LessonDetail() {
     if (!error) {
       setIsCompleted(true)
       
-      // إضافة نقاط لإكمال الدرس
       if (lesson) {
         await addLessonPoints(user.id, parseInt(id as string), lesson.title_ar)
       }
       
       alert('✅ تم إكمال الدرس بنجاح! +50 نقطة')
     }
+  }
+
+  // دالة المشاركة
+  const shareLesson = async () => {
+    const shareData = {
+      title: lesson?.title_ar,
+      text: lesson?.description,
+      url: window.location.href
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+      } catch (err) {
+        copyToClipboard()
+      }
+    } else {
+      copyToClipboard()
+    }
+  }
+
+  // دالة نسخ الرابط
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href)
+    alert('📋 تم نسخ رابط الدرس! يمكنك مشاركته مع أصدقائك')
+  }
+
+  // دالة الطباعة
+  const printLesson = () => {
+    const printWindow = window.open('', '_blank', 'width=800,height=600')
+    if (!printWindow) return
+
+    const content = `
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>${lesson?.title_ar} - بوابة المعرفة المغربية</title>
+        <style>
+          body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            direction: rtl;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+          }
+          h1 { color: #667eea; margin-bottom: 20px; }
+          .meta { color: #666; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+          .content { margin-top: 20px; }
+          .footer { margin-top: 50px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
+          @media print {
+            body { padding: 20px; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>${lesson?.title_ar}</h1>
+        <div class="meta">
+          📖 ${lesson?.description || ''}<br>
+          👁️ ${lesson?.views || 0} مشاهدة
+        </div>
+        <div class="content">
+          ${lesson?.content || '<p>لا يوجد محتوى نصي للدرس حالياً</p>'}
+        </div>
+        <div class="footer">
+          📚 بوابة المعرفة المغربية<br>
+          ${window.location.href}<br>
+          تاريخ الطباعة: ${new Date().toLocaleDateString('ar-MA')}
+        </div>
+        <div class="no-print" style="text-align:center; margin-top:30px;">
+          <button onclick="window.print()" style="padding:10px 20px; background:#667eea; color:white; border:none; border-radius:5px; cursor:pointer;">
+            🖨️ طباعة
+          </button>
+        </div>
+        <script>
+          window.onload = () => { window.print(); }
+        </script>
+      </body>
+      </html>
+    `
+
+    printWindow.document.write(content)
+    printWindow.document.close()
   }
 
   if (loading) {
@@ -267,7 +349,40 @@ export default function LessonDetail() {
         ← العودة إلى المادة
       </Link>
       
-      <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '10px' }}>
+      <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '10px', flexWrap: 'wrap' }}>
+        {/* زر المشاركة */}
+        <button
+          onClick={shareLesson}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            color: '#10b981',
+            padding: '5px'
+          }}
+          title="مشاركة الدرس"
+        >
+          📤
+        </button>
+        
+        {/* زر الطباعة */}
+        <button
+          onClick={printLesson}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            color: '#f59e0b',
+            padding: '5px'
+          }}
+          title="طباعة الدرس"
+        >
+          🖨️
+        </button>
+        
+        {/* زر المفضلة */}
         <button
           onClick={toggleFavorite}
           style={{
@@ -277,10 +392,12 @@ export default function LessonDetail() {
             cursor: 'pointer',
             color: isFavorite ? '#eab308' : '#ccc'
           }}
+          title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
         >
           {isFavorite ? '⭐' : '☆'}
         </button>
         
+        {/* زر إكمال الدرس */}
         {!isCompleted && (
           <button
             onClick={markComplete}
@@ -384,18 +501,22 @@ export default function LessonDetail() {
         </div>
       )}
       
-      {lesson.content && (
-        <div style={{
-          background: 'white',
-          padding: '30px',
-          borderRadius: '12px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-          marginBottom: '20px',
-          lineHeight: '1.8'
-        }}>
+      <div id="lesson-content" style={{
+        background: 'white',
+        padding: '30px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+        marginBottom: '20px',
+        lineHeight: '1.8'
+      }}>
+        {lesson.content ? (
           <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-        </div>
-      )}
+        ) : (
+          <p style={{ color: '#666', textAlign: 'center' }}>
+            📝 سيتم إضافة محتوى الدرس قريباً
+          </p>
+        )}
+      </div>
       
       <Link to={`/exercises/${lesson.id}`}>
         <button style={{
