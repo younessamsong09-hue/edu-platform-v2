@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { addLessonPoints } from '../lib/gamification'
 import Comments from '../components/Comments'
+import Toast from '../components/Toast'
+import Loader from '../components/Loader'
 
 interface Lesson {
   id: number
@@ -24,6 +26,7 @@ export default function LessonDetail() {
   const [isCompleted, setIsCompleted] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [hasRecordedView, setHasRecordedView] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
   
   const [userRating, setUserRating] = useState<number | null>(null)
   const [averageRating, setAverageRating] = useState(0)
@@ -121,7 +124,7 @@ export default function LessonDetail() {
 
   async function submitRating(rating: number) {
     if (!user) {
-      alert('يرجى تسجيل الدخول أولاً')
+      setToast({ message: 'يرجى تسجيل الدخول أولاً', type: 'error' })
       return
     }
 
@@ -137,7 +140,7 @@ export default function LessonDetail() {
     if (!error) {
       setUserRating(rating)
       fetchRatings()
-      alert('شكراً لتقييمك! ⭐')
+      setToast({ message: 'شكراً لتقييمك! ⭐', type: 'success' })
     }
   }
 
@@ -165,7 +168,7 @@ export default function LessonDetail() {
 
   async function toggleFavorite() {
     if (!user) {
-      alert('يرجى تسجيل الدخول أولاً')
+      setToast({ message: 'يرجى تسجيل الدخول أولاً', type: 'error' })
       return
     }
 
@@ -176,17 +179,19 @@ export default function LessonDetail() {
         .eq('user_id', user.id)
         .eq('lesson_id', id)
       setIsFavorite(false)
+      setToast({ message: 'تم الإزالة من المفضلة', type: 'info' })
     } else {
       await supabase
         .from('favorites')
         .insert({ user_id: user.id, lesson_id: id })
       setIsFavorite(true)
+      setToast({ message: 'تم الإضافة إلى المفضلة ⭐', type: 'success' })
     }
   }
 
   async function markComplete() {
     if (!user) {
-      alert('يرجى تسجيل الدخول أولاً')
+      setToast({ message: 'يرجى تسجيل الدخول أولاً', type: 'error' })
       return
     }
 
@@ -206,7 +211,7 @@ export default function LessonDetail() {
         await addLessonPoints(user.id, parseInt(id as string), lesson.title_ar)
       }
       
-      alert('✅ تم إكمال الدرس بنجاح! +50 نقطة')
+      setToast({ message: '✅ تم إكمال الدرس بنجاح! +50 نقطة', type: 'success' })
     }
   }
 
@@ -220,6 +225,7 @@ export default function LessonDetail() {
     if (navigator.share) {
       try {
         await navigator.share(shareData)
+        setToast({ message: 'تم مشاركة الدرس!', type: 'success' })
       } catch (err) {
         copyToClipboard()
       }
@@ -230,7 +236,7 @@ export default function LessonDetail() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
-    alert('📋 تم نسخ رابط الدرس! يمكنك مشاركته مع أصدقائك')
+    setToast({ message: '📋 تم نسخ رابط الدرس!', type: 'success' })
   }
 
   const printLesson = () => {
@@ -244,60 +250,27 @@ export default function LessonDetail() {
         <meta charset="UTF-8">
         <title>${lesson?.title_ar} - بوابة المعرفة المغربية</title>
         <style>
-          body {
-            font-family: 'Cairo', 'Tajawal', sans-serif;
-            direction: rtl;
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
-          }
-          h1 { color: #667eea; margin-bottom: 20px; }
-          .meta { color: #666; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-          .content { margin-top: 20px; }
+          body { font-family: 'Cairo', sans-serif; direction: rtl; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.8; }
+          h1 { color: #667eea; }
           .footer { margin-top: 50px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
-          @media print {
-            body { padding: 20px; }
-            .no-print { display: none; }
-          }
         </style>
       </head>
       <body>
         <h1>${lesson?.title_ar}</h1>
-        <div class="meta">
-          📖 ${lesson?.description || ''}<br>
-          👁️ ${lesson?.views || 0} مشاهدة
-        </div>
-        <div class="content">
-          ${lesson?.content || '<p>لا يوجد محتوى نصي للدرس حالياً</p>'}
-        </div>
-        <div class="footer">
-          📚 بوابة المعرفة المغربية<br>
-          ${window.location.href}<br>
-          تاريخ الطباعة: ${new Date().toLocaleDateString('ar-MA')}
-        </div>
-        <div class="no-print" style="text-align:center; margin-top:30px;">
-          <button onclick="window.print()" style="padding:10px 20px; background:#667eea; color:white; border:none; border-radius:5px; cursor:pointer;">
-            🖨️ طباعة
-          </button>
-        </div>
-        <script>
-          window.onload = () => { window.print(); }
-        </script>
+        <p>${lesson?.description || ''}</p>
+        <div>${lesson?.content || '<p>لا يوجد محتوى نصي</p>'}</div>
+        <div class="footer">📚 بوابة المعرفة المغربية<br>${window.location.href}</div>
       </body>
       </html>
     `
 
     printWindow.document.write(content)
     printWindow.document.close()
+    setToast({ message: 'تم فتح نافذة الطباعة', type: 'info' })
   }
 
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
-        <h2>جاري تحميل الدرس...</h2>
-      </div>
-    )
+    return <Loader />
   }
 
   if (!lesson) {
@@ -335,201 +308,71 @@ export default function LessonDetail() {
   }
 
   const formatViews = (views: number) => {
-    if (views >= 1000) {
-      return (views / 1000).toFixed(1) + 'K'
-    }
+    if (views >= 1000) return (views / 1000).toFixed(1) + 'K'
     return views.toString()
   }
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px', paddingBottom: '80px' }}>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <Link to={`/courses/${lesson.subject_id}`} style={{ color: '#667eea', textDecoration: 'none' }}>
         ← العودة إلى المادة
       </Link>
       
       <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '10px', flexWrap: 'wrap' }}>
-        <button
-          onClick={shareLesson}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '24px',
-            cursor: 'pointer',
-            color: '#10b981',
-            padding: '5px'
-          }}
-          title="مشاركة الدرس"
-        >
-          📤
-        </button>
-        
-        <button
-          onClick={printLesson}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '24px',
-            cursor: 'pointer',
-            color: '#f59e0b',
-            padding: '5px'
-          }}
-          title="طباعة الدرس"
-        >
-          🖨️
-        </button>
-        
-        <button
-          onClick={toggleFavorite}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '30px',
-            cursor: 'pointer',
-            color: isFavorite ? '#eab308' : '#ccc'
-          }}
-          title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
-        >
-          {isFavorite ? '⭐' : '☆'}
-        </button>
-        
+        <button onClick={shareLesson} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#10b981', padding: '5px' }} title="مشاركة الدرس">📤</button>
+        <button onClick={printLesson} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#f59e0b', padding: '5px' }} title="طباعة الدرس">🖨️</button>
+        <button onClick={toggleFavorite} style={{ background: 'none', border: 'none', fontSize: '30px', cursor: 'pointer', color: isFavorite ? '#eab308' : '#ccc' }} title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}>{isFavorite ? '⭐' : '☆'}</button>
         {!isCompleted && (
-          <button
-            onClick={markComplete}
-            style={{
-              background: '#10b981',
-              color: 'white',
-              padding: '8px 20px',
-              border: 'none',
-              borderRadius: '20px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            ✅ إكمال الدرس (+50 نقطة)
-          </button>
+          <button onClick={markComplete} style={{ background: '#10b981', color: 'white', padding: '8px 20px', border: 'none', borderRadius: '20px', cursor: 'pointer', fontSize: '14px' }}>✅ إكمال الدرس (+50 نقطة)</button>
         )}
         {isCompleted && (
-          <span style={{
-            background: '#d4edda',
-            color: '#155724',
-            padding: '8px 20px',
-            borderRadius: '20px',
-            fontSize: '14px'
-          }}>
-            ✅ تم الإكمال
-          </span>
+          <span style={{ background: '#d4edda', color: '#155724', padding: '8px 20px', borderRadius: '20px', fontSize: '14px' }}>✅ تم الإكمال</span>
         )}
       </div>
       
-      <h1 style={{ fontSize: '32px', margin: '20px 0', color: '#333' }}>
-        {lesson.title_ar}
-      </h1>
+      <h1 style={{ fontSize: '32px', margin: '20px 0', color: '#333' }}>{lesson.title_ar}</h1>
       
-      <div style={{
-        background: '#f9fafb',
-        padding: '20px',
-        borderRadius: '15px',
-        marginBottom: '30px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '15px'
-      }}>
+      <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '15px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '24px' }}>👁️</span>
-          <div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
-              {formatViews(lesson.views || 0)}
-            </div>
-            <div style={{ fontSize: '12px', color: '#666' }}>مشاهدة</div>
-          </div>
+          <div><div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>{formatViews(lesson.views || 0)}</div><div style={{ fontSize: '12px', color: '#666' }}>مشاهدة</div></div>
         </div>
-        
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
-              {averageRating.toFixed(1)}
-            </div>
-            <div>{renderStars(averageRating)}</div>
-          </div>
-          <div style={{ color: '#666', fontSize: '12px' }}>
-            {ratingCount} تقييم
-          </div>
+          <div><div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>{averageRating.toFixed(1)}</div><div>{renderStars(averageRating)}</div></div>
+          <div style={{ color: '#666', fontSize: '12px' }}>{ratingCount} تقييم</div>
         </div>
-        
         {user && (
           <div style={{ textAlign: 'left' }}>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
-              {userRating ? 'تقييمك:' : 'قيم هذا الدرس:'}
-            </div>
+            <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>{userRating ? 'تقييمك:' : 'قيم هذا الدرس:'}</div>
             <div>{renderStars(userRating || 0, true)}</div>
           </div>
         )}
       </div>
       
-      <p style={{ color: '#666', fontSize: '18px', marginBottom: '30px' }}>
-        {lesson.description}
-      </p>
+      <p style={{ color: '#666', fontSize: '18px', marginBottom: '30px' }}>{lesson.description}</p>
       
       {lesson.video_url && lesson.video_url !== '' && (
-        <div style={{
-          position: 'relative',
-          paddingBottom: '56.25%',
-          height: 0,
-          marginBottom: '30px'
-        }}>
-          <iframe
-            src={lesson.video_url}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              borderRadius: '12px'
-            }}
-            allowFullScreen
-            title={lesson.title_ar}
-          />
+        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: '30px' }}>
+          <iframe src={lesson.video_url} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px' }} allowFullScreen title={lesson.title_ar} />
         </div>
       )}
       
-      <div id="lesson-content" style={{
-        background: 'white',
-        padding: '30px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-        marginBottom: '20px',
-        lineHeight: '1.8'
-      }}>
-        {lesson.content ? (
-          <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-        ) : (
-          <p style={{ color: '#666', textAlign: 'center' }}>
-            📝 سيتم إضافة محتوى الدرس قريباً
-          </p>
-        )}
+      <div id="lesson-content" style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', marginBottom: '20px', lineHeight: '1.8' }}>
+        {lesson.content ? <div dangerouslySetInnerHTML={{ __html: lesson.content }} /> : <p style={{ color: '#666', textAlign: 'center' }}>📝 سيتم إضافة محتوى الدرس قريباً</p>}
       </div>
       
       <Link to={`/exercises/${lesson.id}`}>
-        <button style={{
-          width: '100%',
-          padding: '15px',
-          background: '#10b981',
-          color: 'white',
-          border: 'none',
-          borderRadius: '12px',
-          fontSize: '18px',
-          cursor: 'pointer',
-          marginTop: '20px',
-          fontWeight: 'bold'
-        }}>
-          📝 حل التمارين {exercisesCount > 0 ? `(${exercisesCount} تمرين)` : ''}
-        </button>
+        <button style={{ width: '100%', padding: '15px', background: '#10b981', color: 'white', border: 'none', borderRadius: '12px', fontSize: '18px', cursor: 'pointer', marginTop: '20px', fontWeight: 'bold' }}>📝 حل التمارين {exercisesCount > 0 ? `(${exercisesCount} تمرين)` : ''}</button>
       </Link>
 
-      {/* قسم التعليقات */}
       <Comments lessonId={parseInt(id as string)} />
     </div>
   )
